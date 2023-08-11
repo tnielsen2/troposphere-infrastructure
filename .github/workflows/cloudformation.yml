@@ -1,0 +1,30 @@
+---
+name: Update Action on JSON Change
+
+on:
+  push:
+    paths:
+      - 'cfn/**.json'
+
+jobs:
+  update-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: List changed JSON files
+        id: list-json-changes
+        run: |
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'cfn/**/*.json')
+          echo "::set-output name=changed_files::${changed_files}"
+
+      - name: Extract app names and trigger action
+        run: |
+          for json_file in ${{ steps.list-json-changes.outputs.changed_files }}; do
+            app_name=$(basename $(dirname $json_file))
+            echo "${app_name}" has changed.
+            # Perform your desired action here using $app_name
+          done
+...
