@@ -1,8 +1,8 @@
 {
-  "Description": "us-west-2: LAB - ecs-app Infrastructure",
+  "Description": "dev-a: LAB - ecs-app Infrastructure",
   "Outputs": {
     "subnetuswest2a": {
-      "Description": "us-west-2 Subnet us-west-2a ID",
+      "Description": "dev-a Subnet us-west-2a ID",
       "Value": {
         "Ref": "subnetuswest2a"
       }
@@ -11,7 +11,7 @@
   "Resources": {
     "SecurityGroup": {
       "Properties": {
-        "GroupDescription": "us-west-2: ecs-app Security Group",
+        "GroupDescription": "dev-a: ecs-app Security Group",
         "SecurityGroupIngress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -39,11 +39,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-ecs-app-sg"
+            "Value": "dev-a-ecs-app-sg"
           }
         ],
         "VpcId": {
@@ -179,7 +179,7 @@
                 "SourceVolume": "data-vol"
               }
             ],
-            "Name": "us-west-2-ecs-app",
+            "Name": "dev-a-ecs-app",
             "PortMappings": [
               {
                 "ContainerPort": 2456,
@@ -201,7 +201,7 @@
           }
         ],
         "Cpu": "2048",
-        "Family": "us-west-2-ecs-app",
+        "Family": "dev-a-ecs-app",
         "Memory": "4096",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
@@ -218,7 +218,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -241,7 +241,7 @@
     },
     "cluster": {
       "Properties": {
-        "ClusterName": "us-west-2-ecs-app-cluster",
+        "ClusterName": "dev-a-ecs-app-cluster",
         "Tags": [
           {
             "Key": "Business",
@@ -253,7 +253,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -274,9 +274,9 @@
           },
           "HostedZoneId": "ZLMOA37VPKANP"
         },
-        "Comment": "us-west-2-us-west-2-ecs-app domain record",
-        "HostedZoneName": "trentnielsen.me.",
-        "Name": "vh.trentnielsen.me",
+        "Comment": "dev-a-us-west-2-ecs-app domain record",
+        "HostedZoneName": "tnielsen-example.com.",
+        "Name": "vh.tnielsen-example.com",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"
@@ -310,7 +310,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           }
         ]
       },
@@ -353,11 +353,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-igw"
+            "Value": "dev-a-igw"
           }
         ]
       },
@@ -376,11 +376,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-network-acl"
+            "Value": "dev-a-network-acl"
           }
         ],
         "VpcId": {
@@ -409,7 +409,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -459,11 +459,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-rtb"
+            "Value": "dev-a-rtb"
           }
         ],
         "VpcId": {
@@ -481,21 +481,21 @@
         "LaunchType": "FARGATE",
         "LoadBalancers": [
           {
-            "ContainerName": "us-west-2-ecs-app",
+            "ContainerName": "dev-a-ecs-app",
             "ContainerPort": 2456,
             "TargetGroupArn": {
               "Ref": "udp2456tg"
             }
           },
           {
-            "ContainerName": "us-west-2-ecs-app",
+            "ContainerName": "dev-a-ecs-app",
             "ContainerPort": 2457,
             "TargetGroupArn": {
               "Ref": "udp2457tg"
             }
           },
           {
-            "ContainerName": "us-west-2-ecs-app",
+            "ContainerName": "dev-a-ecs-app",
             "ContainerPort": 2458,
             "TargetGroupArn": {
               "Ref": "udp2458tg"
@@ -531,7 +531,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -561,11 +561,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-subnet-us-west-2a"
+            "Value": "dev-a-subnet-us-west-2a"
           }
         ],
         "VpcId": {
@@ -741,11 +741,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-west-2-ecs-app"
+            "Value": "dev-a-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-vpc"
+            "Value": "dev-a-vpc"
           }
         ]
       },

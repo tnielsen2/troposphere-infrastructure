@@ -17,11 +17,11 @@
         ]
       }
     },
-    "CDNDomainOutputresume0trentnielsen0me": {
+    "CDNDomainOutputresume0tnielsenexample0com": {
       "Description": "Domain for CDN",
       "Value": {
         "Fn::GetAtt": [
-          "cdnDistributionresume0trentnielsen0me",
+          "cdnDistributionresume0tnielsenexample0com",
           "DomainName"
         ]
       }
@@ -101,15 +101,15 @@
     },
     "api": {
       "Properties": {
-        "Name": "us-east-1-s3-static-site"
+        "Name": "dev-a-s3-static-site"
       },
       "Type": "AWS::ApiGateway::RestApi"
     },
     "apiCname": {
       "Properties": {
         "Comment": "s3-static-site API gateway domain record",
-        "HostedZoneName": "trentnielsen.me.",
-        "Name": "api.trentnielsen.me",
+        "HostedZoneName": "tnielsen-example.com.",
+        "Name": "api.tnielsen-example.com",
         "ResourceRecords": [
           {
             "Fn::Join": [
@@ -128,18 +128,18 @@
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "cdnCertificateresume0trentnielsen0me": {
-      "DependsOn": "s3staticsite0resume0trentnielsen0me0Bucket",
+    "cdnCertificateresume0tnielsenexample0com": {
+      "DependsOn": "s3staticsite0resume0tnielsenexample0com0Bucket",
       "Properties": {
-        "DomainName": "resume.trentnielsen.me",
+        "DomainName": "resume.tnielsen-example.com",
         "DomainValidationOptions": [
           {
-            "DomainName": "resume.trentnielsen.me",
-            "ValidationDomain": "trentnielsen.me"
+            "DomainName": "resume.tnielsen-example.com",
+            "ValidationDomain": "tnielsen-example.com"
           }
         ],
         "SubjectAlternativeNames": [
-          "www.resume.trentnielsen.me"
+          "www.resume.tnielsen-example.com"
         ],
         "Tags": [
           {
@@ -152,22 +152,22 @@
           },
           {
             "Key": "Name",
-            "Value": "us-east-1-s3-static-site"
+            "Value": "dev-a-s3-static-site"
           }
         ],
         "ValidationMethod": "DNS"
       },
       "Type": "AWS::CertificateManager::Certificate"
     },
-    "cdnDistributionresume0trentnielsen0me": {
-      "DependsOn": "cdnCertificateresume0trentnielsen0me",
+    "cdnDistributionresume0tnielsenexample0com": {
+      "DependsOn": "cdnCertificateresume0tnielsenexample0com",
       "Properties": {
         "DistributionConfig": {
           "Aliases": [
-            "resume.trentnielsen.me",
-            "www.resume.trentnielsen.me"
+            "resume.tnielsen-example.com",
+            "www.resume.tnielsen-example.com"
           ],
-          "Comment": "us-east-1 - resume.trentnielsen.me",
+          "Comment": "dev-a - resume.tnielsen-example.com",
           "CustomErrorResponses": [
             {
               "ErrorCachingMinTTL": "0",
@@ -219,7 +219,7 @@
             "MaxTTL": 31536000,
             "MinTTL": 0,
             "SmoothStreaming": false,
-            "TargetOriginId": "us-east-1-s3-static-site-resume.trentnielsen.me",
+            "TargetOriginId": "dev-a-s3-static-site-resume.tnielsen-example.com",
             "ViewerProtocolPolicy": "redirect-to-https"
           },
           "Enabled": true,
@@ -242,7 +242,7 @@
                       "//",
                       {
                         "Fn::GetAtt": [
-                          "s3staticsite0resume0trentnielsen0me0Bucket",
+                          "s3staticsite0resume0tnielsenexample0com0Bucket",
                           "WebsiteURL"
                         ]
                       }
@@ -250,13 +250,13 @@
                   }
                 ]
               },
-              "Id": "us-east-1-s3-static-site-resume.trentnielsen.me"
+              "Id": "dev-a-s3-static-site-resume.tnielsen-example.com"
             }
           ],
           "PriceClass": "PriceClass_All",
           "ViewerCertificate": {
             "AcmCertificateArn": {
-              "Ref": "cdnCertificateresume0trentnielsen0me"
+              "Ref": "cdnCertificateresume0tnielsenexample0com"
             },
             "MinimumProtocolVersion": "TLSv1.2_2018",
             "SslSupportMethod": "sni-only"
@@ -397,9 +397,9 @@
       },
       "Type": "AWS::ApiGateway::Resource"
     },
-    "s3staticsite0resume0trentnielsen0me0Bucket": {
+    "s3staticsite0resume0tnielsenexample0com0Bucket": {
       "Properties": {
-        "BucketName": "resume.trentnielsen.me",
+        "BucketName": "resume.tnielsen-example.com",
         "Tags": [
           {
             "Key": "Business",
@@ -411,7 +411,7 @@
           },
           {
             "Key": "Component",
-            "Value": "resume.trentnielsen.me"
+            "Value": "resume.tnielsen-example.com"
           }
         ],
         "WebsiteConfiguration": {
@@ -420,74 +420,74 @@
       },
       "Type": "AWS::S3::Bucket"
     },
-    "s3staticsiteresume0trentnielsen0meAAAAdns": {
+    "s3staticsiteresume0tnielsenexample0comAAAAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0trentnielsen0me",
+              "cdnDistributionresume0tnielsenexample0com",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "resume.trentnielsen.me domain record",
-        "HostedZoneName": "trentnielsen.me.",
-        "Name": "resume.trentnielsen.me",
+        "Comment": "resume.tnielsen-example.com domain record",
+        "HostedZoneName": "tnielsen-example.com.",
+        "Name": "resume.tnielsen-example.com",
         "Type": "AAAA"
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "s3staticsiteresume0trentnielsen0meAdns": {
+    "s3staticsiteresume0tnielsenexample0comAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0trentnielsen0me",
+              "cdnDistributionresume0tnielsenexample0com",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "resume.trentnielsen.me domain record",
-        "HostedZoneName": "trentnielsen.me.",
-        "Name": "resume.trentnielsen.me",
+        "Comment": "resume.tnielsen-example.com domain record",
+        "HostedZoneName": "tnielsen-example.com.",
+        "Name": "resume.tnielsen-example.com",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "s3staticsiteresume0trentnielsen0meAlternativeAAAAdns": {
+    "s3staticsiteresume0tnielsenexample0comAlternativeAAAAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0trentnielsen0me",
+              "cdnDistributionresume0tnielsenexample0com",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "www.resume.trentnielsen.me domain record",
-        "HostedZoneName": "trentnielsen.me.",
-        "Name": "www.resume.trentnielsen.me",
+        "Comment": "www.resume.tnielsen-example.com domain record",
+        "HostedZoneName": "tnielsen-example.com.",
+        "Name": "www.resume.tnielsen-example.com",
         "Type": "AAAA"
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "s3staticsiteresume0trentnielsen0meAlternativeAdns": {
+    "s3staticsiteresume0tnielsenexample0comAlternativeAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0trentnielsen0me",
+              "cdnDistributionresume0tnielsenexample0com",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "www.resume.trentnielsen.me domain record",
-        "HostedZoneName": "trentnielsen.me.",
-        "Name": "www.resume.trentnielsen.me",
+        "Comment": "www.resume.tnielsen-example.com domain record",
+        "HostedZoneName": "tnielsen-example.com.",
+        "Name": "www.resume.tnielsen-example.com",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"

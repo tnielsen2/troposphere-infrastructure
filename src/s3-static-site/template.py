@@ -38,10 +38,9 @@ hashkeyname = 'counters'
 # Table data type (N is for number/integer)
 hashkeytype = 'N'
 
-dns_domain = 'trentnielsen.me'
-
 
 def create_cfn_template(environment, region):
+    dns_domain = 'tnielsen-example.com'
     # Prepare Template
     t = Template()
     t.set_description(f'YIT: {app_group}')
@@ -51,16 +50,19 @@ def create_cfn_template(environment, region):
     ################################################################################################################
 
     redirect_domains = {
-        'resume.trentnielsen.me': {
-            'zone_name': 'trentnielsen.me',
-            'redirect_target': 'resume.trentnielsen.me',
+        f'resume.{dns_domain}': {
+            'zone_name': f'{dns_domain}',
+            'redirect_target': f'resume.{dns_domain}',
             'alt_sub': 'www',
         },
     }
 
     for src_domain, domain_info in redirect_domains.items():
 
-        bucketResourceName = f"{app_group_ansi}0{src_domain.replace('.', '0')}0Bucket"
+        src_domain_ansi = src_domain.replace('.', '0')
+        src_domain_ansi = src_domain_ansi.replace('-', '')
+        src_domain_ansi = src_domain_ansi.replace('_', '')
+        bucketResourceName = f"{app_group_ansi}0{src_domain_ansi}0Bucket"
 
         redirectBucket = t.add_resource(Bucket(
             bucketResourceName,
@@ -85,7 +87,7 @@ def create_cfn_template(environment, region):
 
         # Provision certificate for CDN
         cdnCertificate = t.add_resource(Certificate(
-            f"cdnCertificate{src_domain.replace('.', '0')}",
+            f"cdnCertificate{src_domain_ansi}",
             DomainName=cdn_domain,
             DependsOn=redirectBucket,
             SubjectAlternativeNames=[alternate_name],
@@ -111,8 +113,8 @@ def create_cfn_template(environment, region):
 
         # Provision the CDN Distribution
         cdnDistribution = t.add_resource(cf.Distribution(
-            f"cdnDistribution{src_domain.replace('.', '0')}",
-            DependsOn=f"cdnCertificate{src_domain.replace('.', '0')}",
+            f"cdnDistribution{src_domain_ansi}",
+            DependsOn=f"cdnCertificate{src_domain_ansi}",
             DistributionConfig=cf.DistributionConfig(
                 Comment=f'{environment} - {cdn_domain}',
                 Enabled=True,
@@ -179,7 +181,7 @@ def create_cfn_template(environment, region):
         ))
 
         cdnARecord = t.add_resource(RecordSetType(
-            f"{app_group_ansi}{src_domain.replace('.', '0')}Adns",
+            f"{app_group_ansi}{src_domain_ansi}Adns",
             HostedZoneName=f'{dns_domain}.',
             Comment=f"{cdn_domain} domain record",
             Name=f'{cdn_domain}',
@@ -191,7 +193,7 @@ def create_cfn_template(environment, region):
         ))
 
         cdnAAAARecord = t.add_resource(RecordSetType(
-            f"{app_group_ansi}{src_domain.replace('.', '0')}AAAAdns",
+            f"{app_group_ansi}{src_domain_ansi}AAAAdns",
             HostedZoneName=f'{dns_domain}.',
             Comment=f"{cdn_domain} domain record",
             Name=f'{cdn_domain}',
@@ -204,7 +206,7 @@ def create_cfn_template(environment, region):
 
         if domain_info['alt_sub'] != '':
             cdnAlternativeARecord = t.add_resource(RecordSetType(
-                f"{app_group_ansi}{src_domain.replace('.', '0')}AlternativeAdns",
+                f"{app_group_ansi}{src_domain_ansi}AlternativeAdns",
                 HostedZoneName=f'{dns_domain}.',
                 Comment=f"{alternate_name} domain record",
                 Name=f'{alternate_name}',
@@ -216,7 +218,7 @@ def create_cfn_template(environment, region):
             ))
 
             cdnAlternativeAAAARecord = t.add_resource(RecordSetType(
-                f"{app_group_ansi}{src_domain.replace('.', '0')}AlternativeAAAAdns",
+                f"{app_group_ansi}{src_domain_ansi}AlternativeAAAAdns",
                 HostedZoneName=f'{dns_domain}.',
                 Comment=f"{alternate_name} domain record",
                 Name=f'{alternate_name}',
@@ -230,7 +232,7 @@ def create_cfn_template(environment, region):
             # Redirect outputs
             t.add_output([
                 Output(
-                    f"CDNDomainOutput{src_domain.replace('.', '0')}",
+                    f"CDNDomainOutput{src_domain_ansi}",
                     Description="Domain for CDN",
                     Value=GetAtt(cdnDistribution, 'DomainName'),
                 )

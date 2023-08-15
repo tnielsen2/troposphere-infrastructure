@@ -40,6 +40,8 @@ sg_ingress_rules += sg_allow_from(
     80,
     'tcp')
 
+app_domain = 'tnielsen-example.com'
+
 ### Webhook vars
 discord_channel_webhook_url = 'https://discord.com/api/webhooks/828692620762415145/nIFXPz03gY7FNjsUTIIak1LnhektPaitlWhcgDec8dMUuJvV5Jrk9zi5q5Egh3Vu9ItE'
 
@@ -439,9 +441,9 @@ def create_cfn_template(environment, region):
     #### Start Route53 resources
     dnsRecord = t.add_resource(RecordSetType(
         'dnsRecord',
-        HostedZoneName='trentnielsen.me.',
+        HostedZoneName=f'{app_domain}.',
         Comment=f"{environment}-{region}-{app_group_l} domain record",
-        Name='vh.trentnielsen.me',
+        Name=f'vh.{app_domain}',
         Type="A",
         AliasTarget=AliasTarget(
             HostedZoneId=region_hosted_zone_id,
