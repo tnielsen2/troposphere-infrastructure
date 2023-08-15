@@ -95,23 +95,23 @@ def create_cfn_template(environment, region):
     # Pull In Tags
     default_tags = Tags(Business='LAB') + \
                    Tags(Service=app_group_l) + \
-                   Tags(ExtendedName='{}-{}-{}'.format(environment, region, app_group_l))
+                   Tags(ExtendedName=f'{environment}-{region}-{app_group_l}')
 
     # Prepare Template
     t = Template()
-    t.set_description('{}: LAB - {} Infrastructure'.format(environment, app_group))
+    t.set_description(f'{environment}: LAB - {app_group} Infrastructure')
 
     #### Start VPC resources
     vpc = t.add_resource(ec2.VPC(
         'vpc',
         CidrBlock=cidr,
         EnableDnsHostnames='true',
-        Tags=default_tags + Tags(Name='{}-vpc'.format(environment)),
+        Tags=default_tags + Tags(Name=f'{environment}-vpc'),
     ))
 
     internetgateway = t.add_resource(ec2.InternetGateway(
         'internetgateway',
-        Tags=default_tags + Tags(Name='{}-igw'.format(environment)),
+        Tags=default_tags + Tags(Name=f'{environment}-igw'),
     ))
 
     gatewayattachment = t.add_resource(ec2.VPCGatewayAttachment(
@@ -123,7 +123,7 @@ def create_cfn_template(environment, region):
     routetable = t.add_resource(ec2.RouteTable(
         'routetable',
         VpcId=Ref(vpc),
-        Tags=default_tags + Tags(Name='{}-rtb'.format(environment)),
+        Tags=default_tags + Tags(Name=f'{environment}-rtb'),
     ))
 
     route = t.add_resource(ec2.Route(
@@ -137,7 +137,7 @@ def create_cfn_template(environment, region):
     networkacl = t.add_resource(ec2.NetworkAcl(
         'networkacl',
         VpcId=Ref(vpc),
-        Tags=default_tags + Tags(Name='{}-network-acl'.format(environment)),
+        Tags=default_tags + Tags(Name=f'{environment}-network-acl'),
     ))
 
     inboundacl = t.add_resource(ec2.NetworkAclEntry(
@@ -161,29 +161,29 @@ def create_cfn_template(environment, region):
     ))
 
     subnet = t.add_resource(ec2.Subnet(
-        'subnet{}'.format(az.replace('-', '')),
+        f"subnet{az.replace('-', '')}",
         CidrBlock=cidr,
         VpcId=Ref(vpc),
         MapPublicIpOnLaunch='true',
         AvailabilityZone=az,
-        Tags=default_tags + Tags(Name='{}-subnet-{}'.format(environment, az)),
+        Tags=default_tags + Tags(Name=f'{environment}-subnet-{az}'),
         DependsOn='vpc'
     ))
 
     subnet_route = t.add_resource(ec2.SubnetRouteTableAssociation(
-        'subnet{}route'.format(az.replace('-', '')),
+        f"subnet{az.replace('-', '')}route",
         SubnetId=Ref(subnet),
         RouteTableId=Ref(routetable),
     ))
     subnet_acl = t.add_resource(ec2.SubnetNetworkAclAssociation(
-        'subnet{}networkacl'.format(az.replace('-', '')),
+        f"subnet{az.replace('-', '')}networkacl",
         SubnetId=Ref(subnet),
         NetworkAclId=Ref(networkacl),
     ))
     t.add_output([
         Output(
-            'subnet{}'.format(az.replace('-', '')),
-            Description="{} Subnet {} ID".format(environment, az),
+            f"subnet{az.replace('-', '')}",
+            Description=f"{environment} Subnet {az} ID",
             Value=Ref(subnet),
         )
     ])
@@ -193,10 +193,10 @@ def create_cfn_template(environment, region):
     # Provision the Private Security Group
     SecurityGroup = t.add_resource(ec2.SecurityGroup(
         'SecurityGroup',
-        GroupDescription='{}: {} Security Group'.format(environment, app_group),
+        GroupDescription=f'{environment}: {app_group} Security Group',
         VpcId=Ref(vpc),
         SecurityGroupIngress=sg_ingress_rules,
-        Tags=default_tags + Tags(Name='{}-{}-sg'.format(environment, app_group_l)),
+        Tags=default_tags + Tags(Name=f'{environment}-{app_group_l}-sg'),
     )
     )
 
@@ -220,7 +220,7 @@ def create_cfn_template(environment, region):
     ))
 
     efsmounttarget = t.add_resource(efs.MountTarget(
-        '{}efsMountTarget{}'.format(app_group_ansi, az.replace('-', '')),
+        f"{app_group_ansi}efsMountTarget{az.replace('-', '')}",
         FileSystemId=Ref(efsfilesystem),
         SecurityGroups=[Ref(SecurityGroup)],
         SubnetId=Ref(subnet),
@@ -235,7 +235,7 @@ def create_cfn_template(environment, region):
         Scheme='internet-facing',
         Subnets=[Ref(subnet)],
         Tags=default_tags + Tags(Component='Load-Balancer'),
-        DependsOn='subnet{}'.format(az.replace('-', ''))
+        DependsOn=f"subnet{az.replace('-', '')}"
     ))
 
     # Configure the app target group for udp 2456
@@ -336,7 +336,7 @@ def create_cfn_template(environment, region):
     #### Start ECS resources
     cluster = t.add_resource(ecs.Cluster(
         'cluster',
-        ClusterName='{}-{}-cluster'.format(environment, app_group_l),
+        ClusterName=f'{environment}-{app_group_l}-cluster',
         Tags=default_tags + Tags(Component='ECS-Cluster')
     ))
     #
@@ -364,7 +364,7 @@ def create_cfn_template(environment, region):
     # Define the application task(s)
     containerdefinition = [
         ecs.ContainerDefinition(
-            Name='{}-{}'.format(environment, app_group_l),
+            Name=f'{environment}-{app_group_l}',
             Environment=environment_variables,
             Image='lloesche/valheim-server',
             MountPoints=container_mount_points,
@@ -385,7 +385,7 @@ def create_cfn_template(environment, region):
         Cpu='2048',
         Memory='4096',
         NetworkMode='awsvpc',
-        Family='{}-{}'.format(environment, app_group_l),
+        Family=f'{environment}-{app_group_l}',
         # ExecutionRoleArn=Ref(ecs_role),
         RequiresCompatibilities=['FARGATE'],
         ContainerDefinitions=containerdefinition,
@@ -413,15 +413,15 @@ def create_cfn_template(environment, region):
                 Subnets=[Ref(subnet)],
                 SecurityGroups=[Ref(SecurityGroup)]
             )),
-        LoadBalancers=[ecs.LoadBalancer(ContainerName="{}-{}".format(environment, app_group_l),
+        LoadBalancers=[ecs.LoadBalancer(ContainerName=f"{environment}-{app_group_l}",
                                         ContainerPort=int(2456),
                                         TargetGroupArn=Ref(udp2456tg)
                                         ),
-                       ecs.LoadBalancer(ContainerName="{}-{}".format(environment, app_group_l),
+                       ecs.LoadBalancer(ContainerName=f"{environment}-{app_group_l}",
                                         ContainerPort=int(2457),
                                         TargetGroupArn=Ref(udp2457tg)
                                         ),
-                       ecs.LoadBalancer(ContainerName="{}-{}".format(environment, app_group_l),
+                       ecs.LoadBalancer(ContainerName=f"{environment}-{app_group_l}",
                                         ContainerPort=int(2458),
                                         TargetGroupArn=Ref(udp2458tg)
                                         )
@@ -436,7 +436,7 @@ def create_cfn_template(environment, region):
     dnsRecord = t.add_resource(RecordSetType(
         'dnsRecord',
         HostedZoneName='trentnielsen.me.',
-        Comment="{}-{}-{} domain record".format(environment, region, app_group_l),
+        Comment=f"{environment}-{region}-{app_group_l} domain record",
         Name='vh.trentnielsen.me',
         Type="A",
         AliasTarget=AliasTarget(
