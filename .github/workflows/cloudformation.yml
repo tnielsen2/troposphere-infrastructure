@@ -11,6 +11,20 @@ on:
       - '.github/workflows/*.*'
 
 jobs:
+  cfn-lint:
+    name: CFN Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install cfn-lint
+        run: pip install cfn-lint
+
+      - name: Run cfn-lint
+        run: cfn-lint cfn/**/*.json
+
   update-action:
     runs-on: ubuntu-latest
 
