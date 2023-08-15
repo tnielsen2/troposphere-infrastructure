@@ -7,6 +7,8 @@ Repo to demonstrate Troposphere repo layout and scalability. Mono repo intended 
 2. Set secret credentials in repo settings >> "Secrets and variables" >> Actions:
 ![img.png](images/img.png)
 ![img_1.png](images/img_1.png)
+3. Generate your templates in src/stack-name/template.py
+4. Run `make all` to build your templates
 
 # Usage
 

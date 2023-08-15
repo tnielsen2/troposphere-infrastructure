@@ -15,7 +15,6 @@ class SecurityGroupTypeRule(CloudFormationLintRule):
     id = "W10002"
     shortdesc = "Invalid ruleset with security group type."
     description = "Asserts security groups have rulesets that match the named type"
-    source_url = "https://yamww.atlassian.net/wiki/spaces/AWS/pages/34392976/AWS+EC2+Security+Group+Architecture#Rule-Types"
     tags = ["ec2", "security-group", "regex"]
 
     def match(self, cfn):

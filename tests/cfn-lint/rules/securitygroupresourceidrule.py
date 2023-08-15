@@ -14,7 +14,6 @@ class SecurityGroupResourceIdRule(CloudFormationLintRule):
     id = "W11001"
     shortdesc = "Invalid security group resource ID."
     description = "Security Group resource ID does not match approved format."
-    source_url = "https://yamww.atlassian.net/wiki/spaces/AWS/pages/34392976/AWS+EC2+Security+Group+Architecture#Resource-Names"
     tags = ["ec2", "security-group", "regex"]
 
     def match(self, cfn):

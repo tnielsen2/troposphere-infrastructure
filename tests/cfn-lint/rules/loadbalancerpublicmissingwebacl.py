@@ -10,7 +10,6 @@ class LoadbalancerPublicMissingWebAcl(CloudFormationLintRule):
     id = "W10003"
     shortdesc = "Public Loadbalancer Missing WebAcl"
     description = "Asserts that public loadbalancers have a webacl attached."
-    source_url = ""
     tags = ["loadbalancer", "wafv2"]
 
     def match(self, cfn):

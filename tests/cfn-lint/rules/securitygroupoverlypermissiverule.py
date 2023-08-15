@@ -18,7 +18,6 @@ class SecurityGroupOverlyPermissiveRule(CloudFormationLintRule):
         "Asserts security groups are not overly permissive. "
         "Anything requiring overly permissive access must be excluded."
     )
-    source_url = "https://yamww.atlassian.net/wiki/spaces/AWS/pages/34392976/AWS+EC2+Security+Group+Architecture#Rule-Types"
     tags = ["ec2", "security-group", "regex"]
 
     def match(self, cfn):
