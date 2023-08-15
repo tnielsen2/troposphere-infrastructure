@@ -12,8 +12,7 @@ from troposphere import Template, Ref, Output, GetAtt
 from troposphere.s3 import *
 
 #### Generation vars
-stack_regions = ['us-west-2',
-                 'us-east-2']
+stack_regions = ['us-west-2']
 stack_environments = ['dev-a']
 
 #### Stack vars
