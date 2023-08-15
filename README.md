@@ -113,8 +113,8 @@ def create_cfn_template(environment, region):
 1. Install Docker
 2. Clone this repo
 3. Set secret credentials in repo settings >> "Secrets and variables" >> Actions:
-![img.png](images/img.png)
-![img_1.png](images/img_1.png)
+![img.png](images/actions_1.png)
+![img_1.png](images/actions_2.png)
 4. Add your templates in src/stack-name/template.py
 5. Run `make all` to build your templates
 
