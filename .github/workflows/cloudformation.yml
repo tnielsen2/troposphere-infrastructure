@@ -25,7 +25,6 @@ jobs:
       - name: Run cfn-lint
         run: cfn-lint cfn/**/*.json -a tests/cfn-lint/rules
 
-jobs:
   black-fmt:
     name: Python Black Linting
     runs-on: ubuntu-latest
