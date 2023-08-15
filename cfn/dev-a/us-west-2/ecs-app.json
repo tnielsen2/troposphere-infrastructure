@@ -116,10 +116,6 @@
                 "Value": "br0d0wn"
               },
               {
-                "Name": "DISCORD_WEBHOOK",
-                "Value": "https://discord.com/api/webhooks/828692620762415145/nIFXPz03gY7FNjsUTIIak1LnhektPaitlWhcgDec8dMUuJvV5Jrk9zi5q5Egh3Vu9ItE"
-              },
-              {
                 "Name": "PRE_START_HOOK",
                 "Value": "curl -sfSL -X POST -H \"Content-Type: application/json\" -d \"{\"username\":\"Valheim\",\"content\":\"Valheim server is starting up.\"}\" \"$DISCORD_WEBHOOK\""
               },

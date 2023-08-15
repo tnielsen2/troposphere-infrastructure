@@ -30,9 +30,6 @@ sg_ingress_rules += sg_allow_from({"public": "0.0.0.0/0"}, 80, 80, "tcp")
 
 app_domain = "tnielsen-example.com"
 
-### Webhook vars
-discord_channel_webhook_url = "https://discord.com/api/webhooks/828692620762415145/nIFXPz03gY7FNjsUTIIak1LnhektPaitlWhcgDec8dMUuJvV5Jrk9zi5q5Egh3Vu9ItE"
-
 ### ECS Vars
 environment_variables = [
     ecs.Environment(Name="SERVER_NAME", Value="Desert-Dwellers"),
@@ -55,7 +52,6 @@ environment_variables = [
     ecs.Environment(Name="STATUS_HTTP_PORT", Value="80"),
     ecs.Environment(Name="SERVER_PASS", Value="br0d0wn"),
     # Webhook url from variable declared above
-    ecs.Environment(Name="DISCORD_WEBHOOK", Value=discord_channel_webhook_url),
     ecs.Environment(
         Name="PRE_START_HOOK",
         Value='curl -sfSL -X POST -H "Content-Type: application/json" -d "{"username":"Valheim","content":"Valheim server is starting up."}" "$DISCORD_WEBHOOK"',
