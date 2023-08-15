@@ -2,9 +2,9 @@
 
 FILE_PATH="./.github/workflows/changed_files"
 
-# Check if the file is empty
-if [ ! -s "$FILE_PATH" ]; then
-  echo "No CFN files have changed."
+# Check if the file does not exist or is empty
+if [ ! -e "$FILE_PATH" ] || [ ! -s "$FILE_PATH" ]; then
+  echo "No CFN files have changed or the file does not exist."
   exit 0
 fi
 
