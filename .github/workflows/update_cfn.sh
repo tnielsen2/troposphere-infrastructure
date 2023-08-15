@@ -20,8 +20,8 @@ while IFS= read -r json_file; do
   # Convert variables to uppercase
   TEMPLATE_FILE="$json_file"
   STACK_NAME="${COMPONENTS[-1]%.json}"  # Remove the ".json" extension from the last component
-  AWS_REGION="${COMPONENTS[2]}"
   ENVIRONMENT="${COMPONENTS[1]}"
+  AWS_REGION="${COMPONENTS[2]}"
 
   # Define output and error log files
   OUTPUT_LOG="$ENVIRONMENT-$STACK_NAME.out.log"
