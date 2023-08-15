@@ -1,1 +1,3 @@
 troposphere==4.0.0
+cfn-lint==0.79.7
+black==23.7.0
