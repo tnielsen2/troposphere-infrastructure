@@ -31,9 +31,8 @@ jobs:
       - name: Extract app names and trigger action
         run: |
           for json_file in ${{ steps.list-json-changes.outputs.changed_files }}; do
-            app_name=$(basename $(dirname $json_file))
-            echo "${app_name}" has changed.
-            # Perform your desired action here using $app_name
+            echo "${json_file}" has changed.
+            # Perform your desired action here using $json_file
           done
         shell: bash
 ...
