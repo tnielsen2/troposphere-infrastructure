@@ -21,6 +21,9 @@ while IFS= read -r json_file; do
   OUTPUT_LOG="$ENVIRONMENT-$STACK_NAME.out.log"
   ERROR_LOG="$ENVIRONMENT-$STACK_NAME.err.log"
 
+  # Debug output
+  echo "Executing: aws cloudformation deploy --template-file $TEMPLATE_FILE --stack-name $ENVIRONMENT-$STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
+
   # Execute the AWS CloudFormation deploy command in the background, redirecting output and error streams
   aws cloudformation deploy --template-file "$TEMPLATE_FILE" --stack-name "$ENVIRONMENT-$STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND > "$OUTPUT_LOG" 2> "$ERROR_LOG" &
 
@@ -33,6 +36,9 @@ done < "$FILE_PATH"
 for pid in "${PIDS[@]}"; do
   wait "$pid"
 done
+
+# Debug output
+echo "All background tasks have finished."
 
 # Concatenate and display the output of all executions
 echo "==== Output of All Executions ===="
