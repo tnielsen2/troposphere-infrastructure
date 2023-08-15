@@ -2,6 +2,7 @@
 name: Update Action on JSON Change
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
