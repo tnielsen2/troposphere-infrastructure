@@ -36,6 +36,7 @@ jobs:
           black --check --diff .
 
   update-action:
+    needs: [cfn-lint, black-fmt]
     runs-on: ubuntu-latest
 
     env:
