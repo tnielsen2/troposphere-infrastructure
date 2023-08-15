@@ -3,6 +3,8 @@ name: Update Action on JSON Change
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'cfn/**.json'
       - '.github/workflows/cloudformation.yml'
@@ -30,6 +32,7 @@ jobs:
           echo "After commit: $after_commit"
           changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'cfn/**/*.json')
           echo "${changed_files}" >> ./.github/workflows/changed_files
+          cat ./.github/workflows/changed_files
         shell: bash
 
       - name: Extract app names and trigger action
