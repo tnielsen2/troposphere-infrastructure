@@ -17,7 +17,7 @@ region_hosted_zone_id = 'ZLMOA37VPKANP'
 app_group = 'Lab-ECS-EFS-Server-Trent'
 
 ### VPC vars
-cidr = '10.175.0.0/24'
+cidr = '10.174.0.0/24'
 
 ### Security group vars
 sg_ingress_rules = []
