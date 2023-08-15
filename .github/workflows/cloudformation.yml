@@ -23,7 +23,7 @@ jobs:
           echo "Before commit: $before_commit"
           echo "After commit: $after_commit"
           changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'cfn/**/*.json')
-          echo "::set-output name=changed_files::${changed_files}"
+          echo "::set-output name=changed_files::$changed_files"
         shell: bash
 
       - name: Extract app names and trigger action
