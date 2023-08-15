@@ -19,7 +19,7 @@ stack_environments = ['dev-a']
 #### Stack vars
 # Variable for Route53 resource creation https://docs.aws.amazon.com/general/latest/gr/elb.html
 region_hosted_zone_id = 'ZLMOA37VPKANP'
-app_group = 'Lab-ECS-EFS-Server-Trent'
+app_group = 'ecs-app'
 
 ### VPC vars
 cidr = '10.174.0.0/24'

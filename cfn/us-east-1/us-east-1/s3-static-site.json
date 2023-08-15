@@ -1,0 +1,517 @@
+{
+  "Description": "YIT: s3-static-site",
+  "Outputs": {
+    "ApiEndpoint": {
+      "Description": "Endpoint for this stage of the api",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "api"
+            },
+            ".execute-api.us-east-1.amazonaws.com/",
+            "v1"
+          ]
+        ]
+      }
+    },
+    "CDNDomainOutputresume0trentnielsen0me": {
+      "Description": "Domain for CDN",
+      "Value": {
+        "Fn::GetAtt": [
+          "cdnDistributionresume0trentnielsen0me",
+          "DomainName"
+        ]
+      }
+    },
+    "TableName": {
+      "Description": "Table name of the newly create DynamoDB table",
+      "Value": {
+        "Ref": "myDynamoDBTable"
+      }
+    }
+  },
+  "Resources": {
+    "LambdaExecutionRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com",
+                  "apigateway.amazonaws.com"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "logs:*"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "arn:aws:logs:*:*:*"
+                },
+                {
+                  "Action": [
+                    "lambda:*"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*"
+                },
+                {
+                  "Action": [
+                    "dynamodb:BatchGetItem",
+                    "dynamodb:GetItem",
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                    "dynamodb:BatchWriteItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:UpdateItem"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "myDynamoDBTable",
+                      "Arn"
+                    ]
+                  }
+                }
+              ],
+              "Version": "2012-10-17"
+            },
+            "PolicyName": "root"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "api": {
+      "Properties": {
+        "Name": "us-east-1-s3-static-site"
+      },
+      "Type": "AWS::ApiGateway::RestApi"
+    },
+    "apiCname": {
+      "Properties": {
+        "Comment": "s3-static-site API gateway domain record",
+        "HostedZoneName": "trentnielsen.me.",
+        "Name": "api.trentnielsen.me",
+        "ResourceRecords": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "api"
+                },
+                ".execute-api.us-east-1.amazonaws.com"
+              ]
+            ]
+          }
+        ],
+        "TTL": "900",
+        "Type": "CNAME"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "cdnCertificateresume0trentnielsen0me": {
+      "DependsOn": "s3staticsite0resume0trentnielsen0me0Bucket",
+      "Properties": {
+        "DomainName": "resume.trentnielsen.me",
+        "DomainValidationOptions": [
+          {
+            "DomainName": "resume.trentnielsen.me",
+            "ValidationDomain": "trentnielsen.me"
+          }
+        ],
+        "SubjectAlternativeNames": [
+          "www.resume.trentnielsen.me"
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "YIT"
+          },
+          {
+            "Key": "Lab",
+            "Value": "True"
+          },
+          {
+            "Key": "Name",
+            "Value": "us-east-1-s3-static-site"
+          }
+        ],
+        "ValidationMethod": "DNS"
+      },
+      "Type": "AWS::CertificateManager::Certificate"
+    },
+    "cdnDistributionresume0trentnielsen0me": {
+      "DependsOn": "cdnCertificateresume0trentnielsen0me",
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "resume.trentnielsen.me",
+            "www.resume.trentnielsen.me"
+          ],
+          "Comment": "us-east-1 - resume.trentnielsen.me",
+          "CustomErrorResponses": [
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "403"
+            },
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "404"
+            },
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "500"
+            },
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "501"
+            },
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "502"
+            },
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "503"
+            },
+            {
+              "ErrorCachingMinTTL": "0",
+              "ErrorCode": "504"
+            }
+          ],
+          "DefaultCacheBehavior": {
+            "AllowedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS"
+            ],
+            "CachedMethods": [
+              "GET",
+              "HEAD"
+            ],
+            "Compress": true,
+            "DefaultTTL": 86400,
+            "ForwardedValues": {
+              "Headers": [
+                "Accept-Encoding"
+              ],
+              "QueryString": true
+            },
+            "MaxTTL": 31536000,
+            "MinTTL": 0,
+            "SmoothStreaming": false,
+            "TargetOriginId": "us-east-1-s3-static-site-resume.trentnielsen.me",
+            "ViewerProtocolPolicy": "redirect-to-https"
+          },
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "Origins": [
+            {
+              "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "http-only",
+                "OriginSSLProtocols": [
+                  "TLSv1.2"
+                ]
+              },
+              "DomainName": {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      "//",
+                      {
+                        "Fn::GetAtt": [
+                          "s3staticsite0resume0trentnielsen0me0Bucket",
+                          "WebsiteURL"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "Id": "us-east-1-s3-static-site-resume.trentnielsen.me"
+            }
+          ],
+          "PriceClass": "PriceClass_All",
+          "ViewerCertificate": {
+            "AcmCertificateArn": {
+              "Ref": "cdnCertificateresume0trentnielsen0me"
+            },
+            "MinimumProtocolVersion": "TLSv1.2_2018",
+            "SslSupportMethod": "sni-only"
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "YIT"
+          },
+          {
+            "Key": "Lab",
+            "Value": "True"
+          }
+        ]
+      },
+      "Type": "AWS::CloudFront::Distribution"
+    },
+    "function": {
+      "Properties": {
+        "Code": {
+          "ZipFile": {
+            "Fn::Join": [
+              "",
+              [
+                "var response = require('cfn-response');",
+                "exports.handler = function(event, context) {",
+                "   context.succeed('foobar!');",
+                "   return 'foobar!';",
+                "};"
+              ]
+            ]
+          }
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaExecutionRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python3.7"
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "getmethod": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "Credentials": {
+            "Fn::GetAtt": [
+              "LambdaExecutionRole",
+              "Arn"
+            ]
+          },
+          "IntegrationHttpMethod": "POST",
+          "IntegrationResponses": [
+            {
+              "ResponseTemplates": {
+                "application/json": ""
+              },
+              "StatusCode": "200"
+            }
+          ],
+          "PassthroughBehavior": "WHEN_NO_MATCH",
+          "RequestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "Type": "AWS",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "function",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": [
+          {
+            "ResponseModels": {
+              "application/json": "Empty"
+            },
+            "StatusCode": "200"
+          }
+        ],
+        "ResourceId": {
+          "Ref": "resource"
+        },
+        "RestApiId": {
+          "Ref": "api"
+        }
+      },
+      "Type": "AWS::ApiGateway::Method"
+    },
+    "myDynamoDBTable": {
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "website",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "website",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "TableName": "counters"
+      },
+      "Type": "AWS::DynamoDB::Table"
+    },
+    "resource": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "api",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "dynamo",
+        "RestApiId": {
+          "Ref": "api"
+        }
+      },
+      "Type": "AWS::ApiGateway::Resource"
+    },
+    "s3staticsite0resume0trentnielsen0me0Bucket": {
+      "Properties": {
+        "BucketName": "resume.trentnielsen.me",
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "YIT"
+          },
+          {
+            "Key": "Lab",
+            "Value": "True"
+          },
+          {
+            "Key": "Component",
+            "Value": "resume.trentnielsen.me"
+          }
+        ],
+        "WebsiteConfiguration": {
+          "IndexDocument": "index.html"
+        }
+      },
+      "Type": "AWS::S3::Bucket"
+    },
+    "s3staticsiteresume0trentnielsen0meAAAAdns": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "cdnDistributionresume0trentnielsen0me",
+              "DomainName"
+            ]
+          },
+          "HostedZoneId": "Z2FDTNDATAQYW2"
+        },
+        "Comment": "resume.trentnielsen.me domain record",
+        "HostedZoneName": "trentnielsen.me.",
+        "Name": "resume.trentnielsen.me",
+        "Type": "AAAA"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "s3staticsiteresume0trentnielsen0meAdns": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "cdnDistributionresume0trentnielsen0me",
+              "DomainName"
+            ]
+          },
+          "HostedZoneId": "Z2FDTNDATAQYW2"
+        },
+        "Comment": "resume.trentnielsen.me domain record",
+        "HostedZoneName": "trentnielsen.me.",
+        "Name": "resume.trentnielsen.me",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "s3staticsiteresume0trentnielsen0meAlternativeAAAAdns": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "cdnDistributionresume0trentnielsen0me",
+              "DomainName"
+            ]
+          },
+          "HostedZoneId": "Z2FDTNDATAQYW2"
+        },
+        "Comment": "www.resume.trentnielsen.me domain record",
+        "HostedZoneName": "trentnielsen.me.",
+        "Name": "www.resume.trentnielsen.me",
+        "Type": "AAAA"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "s3staticsiteresume0trentnielsen0meAlternativeAdns": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "cdnDistributionresume0trentnielsen0me",
+              "DomainName"
+            ]
+          },
+          "HostedZoneId": "Z2FDTNDATAQYW2"
+        },
+        "Comment": "www.resume.trentnielsen.me domain record",
+        "HostedZoneName": "trentnielsen.me.",
+        "Name": "www.resume.trentnielsen.me",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "v1Deployment": {
+      "DependsOn": "optionsmethod",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "api"
+        }
+      },
+      "Type": "AWS::ApiGateway::Deployment"
+    },
+    "v1Stage": {
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "v1Deployment"
+        },
+        "RestApiId": {
+          "Ref": "api"
+        },
+        "StageName": "v1"
+      },
+      "Type": "AWS::ApiGateway::Stage"
+    }
+  }
+}

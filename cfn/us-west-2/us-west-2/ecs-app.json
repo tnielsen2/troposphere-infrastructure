@@ -1,17 +1,17 @@
 {
-  "Description": "us-west-2: LAB - Lab-ECS-EFS-Server-Trent Infrastructure",
+  "Description": "us-west-2: LAB - ecs-app Infrastructure",
   "Outputs": {
-    "subnetuseast2a": {
-      "Description": "us-west-2 Subnet us-east-2a ID",
+    "subnetuswest2a": {
+      "Description": "us-west-2 Subnet us-west-2a ID",
       "Value": {
-        "Ref": "subnetuseast2a"
+        "Ref": "subnetuswest2a"
       }
     }
   },
   "Resources": {
     "SecurityGroup": {
       "Properties": {
-        "GroupDescription": "us-west-2: Lab-ECS-EFS-Server-Trent Security Group",
+        "GroupDescription": "us-west-2: ecs-app Security Group",
         "SecurityGroupIngress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -35,15 +35,15 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-lab-ecs-efs-server-trent-sg"
+            "Value": "us-west-2-ecs-app-sg"
           }
         ],
         "VpcId": {
@@ -179,7 +179,7 @@
                 "SourceVolume": "data-vol"
               }
             ],
-            "Name": "us-west-2-lab-ecs-efs-server-trent",
+            "Name": "us-west-2-ecs-app",
             "PortMappings": [
               {
                 "ContainerPort": 2456,
@@ -201,7 +201,7 @@
           }
         ],
         "Cpu": "2048",
-        "Family": "us-west-2-lab-ecs-efs-server-trent",
+        "Family": "us-west-2-ecs-app",
         "Memory": "4096",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
@@ -214,11 +214,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -241,7 +241,7 @@
     },
     "cluster": {
       "Properties": {
-        "ClusterName": "us-west-2-lab-ecs-efs-server-trent-cluster",
+        "ClusterName": "us-west-2-ecs-app-cluster",
         "Tags": [
           {
             "Key": "Business",
@@ -249,11 +249,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -274,12 +274,28 @@
           },
           "HostedZoneId": "ZLMOA37VPKANP"
         },
-        "Comment": "us-west-2-us-east-2-lab-ecs-efs-server-trent domain record",
+        "Comment": "us-west-2-us-west-2-ecs-app domain record",
         "HostedZoneName": "trentnielsen.me.",
         "Name": "vh.trentnielsen.me",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"
+    },
+    "ecsappefsMountTargetuswest2a": {
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "efsfilesystem"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "SecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "subnetuswest2a"
+        }
+      },
+      "Type": "AWS::EFS::MountTarget"
     },
     "efsfilesystem": {
       "Properties": {
@@ -290,11 +306,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           }
         ]
       },
@@ -333,11 +349,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
@@ -346,22 +362,6 @@
         ]
       },
       "Type": "AWS::EC2::InternetGateway"
-    },
-    "labecsefsservertrentefsMountTargetuseast2a": {
-      "Properties": {
-        "FileSystemId": {
-          "Ref": "efsfilesystem"
-        },
-        "SecurityGroups": [
-          {
-            "Ref": "SecurityGroup"
-          }
-        ],
-        "SubnetId": {
-          "Ref": "subnetuseast2a"
-        }
-      },
-      "Type": "AWS::EFS::MountTarget"
     },
     "networkacl": {
       "Properties": {
@@ -372,11 +372,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
@@ -390,12 +390,12 @@
       "Type": "AWS::EC2::NetworkAcl"
     },
     "networkloadbalancer": {
-      "DependsOn": "subnetuseast2a",
+      "DependsOn": "subnetuswest2a",
       "Properties": {
         "Scheme": "internet-facing",
         "Subnets": [
           {
-            "Ref": "subnetuseast2a"
+            "Ref": "subnetuswest2a"
           }
         ],
         "Tags": [
@@ -405,11 +405,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -455,11 +455,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
@@ -481,21 +481,21 @@
         "LaunchType": "FARGATE",
         "LoadBalancers": [
           {
-            "ContainerName": "us-west-2-lab-ecs-efs-server-trent",
+            "ContainerName": "us-west-2-ecs-app",
             "ContainerPort": 2456,
             "TargetGroupArn": {
               "Ref": "udp2456tg"
             }
           },
           {
-            "ContainerName": "us-west-2-lab-ecs-efs-server-trent",
+            "ContainerName": "us-west-2-ecs-app",
             "ContainerPort": 2457,
             "TargetGroupArn": {
               "Ref": "udp2457tg"
             }
           },
           {
-            "ContainerName": "us-west-2-lab-ecs-efs-server-trent",
+            "ContainerName": "us-west-2-ecs-app",
             "ContainerPort": 2458,
             "TargetGroupArn": {
               "Ref": "udp2458tg"
@@ -512,7 +512,7 @@
             ],
             "Subnets": [
               {
-                "Ref": "subnetuseast2a"
+                "Ref": "subnetuswest2a"
               }
             ]
           }
@@ -527,11 +527,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -544,10 +544,10 @@
       },
       "Type": "AWS::ECS::Service"
     },
-    "subnetuseast2a": {
+    "subnetuswest2a": {
       "DependsOn": "vpc",
       "Properties": {
-        "AvailabilityZone": "us-east-2a",
+        "AvailabilityZone": "us-west-2a",
         "CidrBlock": "10.174.0.0/24",
         "MapPublicIpOnLaunch": true,
         "Tags": [
@@ -557,15 +557,15 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "us-west-2-subnet-us-east-2a"
+            "Value": "us-west-2-subnet-us-west-2a"
           }
         ],
         "VpcId": {
@@ -574,24 +574,24 @@
       },
       "Type": "AWS::EC2::Subnet"
     },
-    "subnetuseast2anetworkacl": {
+    "subnetuswest2anetworkacl": {
       "Properties": {
         "NetworkAclId": {
           "Ref": "networkacl"
         },
         "SubnetId": {
-          "Ref": "subnetuseast2a"
+          "Ref": "subnetuswest2a"
         }
       },
       "Type": "AWS::EC2::SubnetNetworkAclAssociation"
     },
-    "subnetuseast2aroute": {
+    "subnetuswest2aroute": {
       "Properties": {
         "RouteTableId": {
           "Ref": "routetable"
         },
         "SubnetId": {
-          "Ref": "subnetuseast2a"
+          "Ref": "subnetuswest2a"
         }
       },
       "Type": "AWS::EC2::SubnetRouteTableAssociation"
@@ -737,11 +737,11 @@
           },
           {
             "Key": "Service",
-            "Value": "lab-ecs-efs-server-trent"
+            "Value": "ecs-app"
           },
           {
             "Key": "ExtendedName",
-            "Value": "us-west-2-us-east-2-lab-ecs-efs-server-trent"
+            "Value": "us-west-2-us-west-2-ecs-app"
           },
           {
             "Key": "Name",

@@ -1,10 +1,10 @@
 import os
 import json
-from pathlib import Path
 
 
 def save_to_file(template, environment, region, stack_name):
     """
+    :param stack_name: Name of the stack
     :param template: Troposphere template object
     :param environment: string, the environment name
     :param region: AWS region, i.e. us-west-2
