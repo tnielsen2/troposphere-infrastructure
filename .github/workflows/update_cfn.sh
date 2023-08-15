@@ -13,14 +13,14 @@ fi
 # Array to store background task PIDs
 declare -a PIDS
 
-while IFS= read -r json_file; do
-  echo "${json_file}" has changed.
+while IFS= read -r JSON_FILE; do
+  echo "${JSON_FILE}" has changed.
 
   # Extract the components from the directory path
-  IFS='/' read -ra COMPONENTS <<< "$json_file"
+  IFS='/' read -ra COMPONENTS <<< "$JSON_FILE"
 
   # Convert variables to uppercase
-  TEMPLATE_FILE="$json_file"
+  TEMPLATE_FILE="$JSON_FILE"
   STACK_NAME="${COMPONENTS[-1]%.json}"  # Remove the ".json" extension from the last component
   ENVIRONMENT="${COMPONENTS[1]}"
   AWS_REGION="${COMPONENTS[2]}"
@@ -32,7 +32,7 @@ while IFS= read -r json_file; do
   # Debug output
   echo "Executing: aws cloudformation deploy --template-file $TEMPLATE_FILE --stack-name $ENVIRONMENT-$STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
 
-  # Execute the AWS CloudFormation deploy command in the background, redirecting output and error streams
+  # Execute the AWS CloudFormation deploy command in the background, redirecting output to $OUTPUT_LOG and both stdout and stderr to $ERROR_LOG
   aws cloudformation deploy --template-file "$TEMPLATE_FILE" --stack-name "$ENVIRONMENT-$STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND > "$OUTPUT_LOG" 2>> "$ERROR_LOG" &
 
   # Store the PID of the background task
@@ -52,6 +52,14 @@ echo "All background tasks have finished."
 echo "==== Output of All Executions ===="
 for LOG_FILE in *-*.out.log; do
   echo "Output of $LOG_FILE:"
+  cat "$LOG_FILE"
+  echo "================================"
+done
+
+# Concatenate and display the error output of all executions
+echo "==== Error Output of All Executions ===="
+for LOG_FILE in *-*.err.log; do
+  echo "Error output of $LOG_FILE:"
   cat "$LOG_FILE"
   echo "================================"
 done
