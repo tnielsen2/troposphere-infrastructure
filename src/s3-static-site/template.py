@@ -70,7 +70,6 @@ def create_cfn_template(environment, region):
     }
 
     for src_domain, domain_info in redirect_domains.items():
-
         src_domain_ansi = src_domain.replace(".", "0")
         src_domain_ansi = src_domain_ansi.replace("-", "")
         src_domain_ansi = src_domain_ansi.replace("_", "")
