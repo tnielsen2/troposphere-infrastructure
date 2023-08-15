@@ -2,8 +2,10 @@
 
 FILE_PATH="./.github/workflows/changed_files"
 
-# Check if the file exists and is not empty
-if [ -e "$FILE_PATH" ] && [ $(stat -c %s "$FILE_PATH") -eq 0 ]; then
+if [ -e "$FILE_PATH" ] && [ $(stat -c %s "$FILE_PATH") -gt 1 ]; then
+  echo "CFN changes detected in changed_files"
+  cat "$FILE_PATH"
+else
   echo "No CFN file changes detected. Exiting with code 0.."
   exit 0
 fi
