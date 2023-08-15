@@ -33,7 +33,7 @@ while IFS= read -r json_file; do
   echo "Executing: aws cloudformation deploy --template-file $TEMPLATE_FILE --stack-name $ENVIRONMENT-$STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
 
   # Execute the AWS CloudFormation deploy command in the background, redirecting output and error streams
-  aws cloudformation deploy --template-file "$TEMPLATE_FILE" --stack-name "$ENVIRONMENT-$STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND > "$OUTPUT_LOG" 2> "$ERROR_LOG" &
+  aws cloudformation deploy --template-file "$TEMPLATE_FILE" --stack-name "$ENVIRONMENT-$STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND > "$OUTPUT_LOG" 2>> "$ERROR_LOG" &
 
   # Store the PID of the background task
   PIDS+=($!)
