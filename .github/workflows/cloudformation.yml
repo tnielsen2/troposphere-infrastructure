@@ -23,7 +23,18 @@ jobs:
         run: pip install cfn-lint
 
       - name: Run cfn-lint
-        run: cfn-lint cfn/**/*.json
+        run: cfn-lint cfn/**/*.json -a tests/cfn-lint/rules
+
+jobs:
+  black-fmt:
+    name: Python Black Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Python Black Linting
+        run: |
+          pip install black
+          black --check --diff .
 
   update-action:
     runs-on: ubuntu-latest

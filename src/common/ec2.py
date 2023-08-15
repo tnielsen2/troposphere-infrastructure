@@ -13,6 +13,12 @@ def sg_allow_from(ip_dictionary, startportrange, endportrange, protocol):
     rules = []
     for key, value in sorted(iter(ip_dictionary.items())):
         rules.append(
-            ec2.SecurityGroupRule(IpProtocol=protocol, FromPort=startportrange, ToPort=endportrange, CidrIp=str(value),
-                                  Description=str(f"{key}")))
+            ec2.SecurityGroupRule(
+                IpProtocol=protocol,
+                FromPort=startportrange,
+                ToPort=endportrange,
+                CidrIp=str(value),
+                Description=str(f"{key}"),
+            )
+        )
     return rules
