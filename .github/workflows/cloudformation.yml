@@ -30,7 +30,8 @@ jobs:
 
       - name: Extract app names and trigger action
         run: |
-          chmod +x update_cfn.sh
+          ls -ltarh
+          chmod +x ./update_cfn.sh
           ./update_cfn.sh "${{ steps.list-json-changes.outputs.changed_files }}"
         shell: bash
 ...
