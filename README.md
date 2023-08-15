@@ -4,7 +4,8 @@ Repo to demonstrate Troposphere repo layout and scalability. Mono repo intended 
 
 # Setup
 1. Install Docker
-2. Set secret credentials in Actions
+2. Set secret credentials in repo settings >> "Secrets and variables" >> Actions:
+![img.png](img.png)
 
 # Usage
 
