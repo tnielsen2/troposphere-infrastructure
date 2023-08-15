@@ -1,5 +1,15 @@
 {
   "Description": "dev-a: LAB - ecs-app Infrastructure",
+  "Metadata": {
+    "cfn-lint": {
+      "config": {
+        "ignore_checks": [
+          "W10001",
+          "W3010"
+        ]
+      }
+    }
+  },
   "Outputs": {
     "subnetuswest2a": {
       "Description": "dev-a Subnet us-west-2a ID",
@@ -9,59 +19,15 @@
     }
   },
   "Resources": {
-    "SecurityGroup": {
-      "Properties": {
-        "GroupDescription": "dev-a: ecs-app Security Group",
-        "SecurityGroupIngress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "public",
-            "FromPort": 2456,
-            "IpProtocol": "udp",
-            "ToPort": 2458
-          },
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "public",
-            "FromPort": 80,
-            "IpProtocol": "tcp",
-            "ToPort": 80
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "Business",
-            "Value": "LAB"
-          },
-          {
-            "Key": "Service",
-            "Value": "ecs-app"
-          },
-          {
-            "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
-          },
-          {
-            "Key": "Name",
-            "Value": "dev-a-ecs-app-sg"
-          }
-        ],
-        "VpcId": {
-          "Ref": "vpc"
-        }
-      },
-      "Type": "AWS::EC2::SecurityGroup"
-    },
     "SelfReferencingRule": {
-      "DependsOn": "SecurityGroup",
       "Properties": {
         "FromPort": "1",
         "GroupId": {
-          "Ref": "SecurityGroup"
+          "Ref": "nlbPublicSecurityGroup"
         },
         "IpProtocol": "-1",
         "SourceSecurityGroupId": {
-          "Ref": "SecurityGroup"
+          "Ref": "nlbPublicSecurityGroup"
         },
         "ToPort": "65535"
       },
@@ -288,7 +254,7 @@
         },
         "SecurityGroups": [
           {
-            "Ref": "SecurityGroup"
+            "Ref": "nlbPublicSecurityGroup"
           }
         ],
         "SubnetId": {
@@ -390,7 +356,6 @@
       "Type": "AWS::EC2::NetworkAcl"
     },
     "networkloadbalancer": {
-      "DependsOn": "subnetuswest2a",
       "Properties": {
         "Scheme": "internet-facing",
         "Subnets": [
@@ -419,6 +384,49 @@
         "Type": "network"
       },
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    },
+    "nlbPublicSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "dev-a: ecs-app Public Security Group",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "public",
+            "FromPort": 2456,
+            "IpProtocol": "udp",
+            "ToPort": 2458
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "public",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "ecs-app"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-west-2-ecs-app"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-ecs-app-sg"
+          }
+        ],
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
     },
     "outboundacl": {
       "Properties": {
@@ -507,7 +515,7 @@
             "AssignPublicIp": "ENABLED",
             "SecurityGroups": [
               {
-                "Ref": "SecurityGroup"
+                "Ref": "nlbPublicSecurityGroup"
               }
             ],
             "Subnets": [
@@ -545,7 +553,6 @@
       "Type": "AWS::ECS::Service"
     },
     "subnetuswest2a": {
-      "DependsOn": "vpc",
       "Properties": {
         "AvailabilityZone": "us-west-2a",
         "CidrBlock": "10.175.0.0/24",
@@ -597,7 +604,6 @@
       "Type": "AWS::EC2::SubnetRouteTableAssociation"
     },
     "tcp80listener": {
-      "DependsOn": "networkloadbalancer",
       "Properties": {
         "DefaultActions": [
           {
@@ -628,7 +634,6 @@
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
     },
     "udp2456listener": {
-      "DependsOn": "networkloadbalancer",
       "Properties": {
         "DefaultActions": [
           {
@@ -661,7 +666,6 @@
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
     },
     "udp2457listener": {
-      "DependsOn": "networkloadbalancer",
       "Properties": {
         "DefaultActions": [
           {
@@ -694,7 +698,6 @@
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
     },
     "udp2458listener": {
-      "DependsOn": "networkloadbalancer",
       "Properties": {
         "DefaultActions": [
           {

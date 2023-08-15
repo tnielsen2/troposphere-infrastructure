@@ -131,7 +131,7 @@ def create_cfn_template(environment, region):
         cdnDistribution = t.add_resource(
             cf.Distribution(
                 f"cdnDistribution{src_domain_ansi}",
-                DependsOn=f"cdnCertificate{src_domain_ansi}",
+                # DependsOn=f"cdnCertificate{src_domain_ansi}",
                 DistributionConfig=cf.DistributionConfig(
                     Comment=f"{environment} - {cdn_domain}",
                     Enabled=True,
@@ -416,7 +416,7 @@ def create_cfn_template(environment, region):
     deployment = t.add_resource(
         Deployment(
             f"{stage_name}Deployment",
-            DependsOn="optionsmethod",
+            DependsOn="getmethod",
             RestApiId=Ref(rest_api),
         )
     )

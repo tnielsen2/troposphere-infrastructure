@@ -1,14 +1,14 @@
 # troposphere-infrastructure
 Repo to demonstrate Troposphere repo layout and scalability. Mono repo intended for a single AWS account.
 
-
 # Setup
 1. Install Docker
-2. Set secret credentials in repo settings >> "Secrets and variables" >> Actions:
+2. Clone this repo
+3. Set secret credentials in repo settings >> "Secrets and variables" >> Actions:
 ![img.png](images/img.png)
 ![img_1.png](images/img_1.png)
-3. Generate your templates in src/stack-name/template.py
-4. Run `make all` to build your templates
+4. Add your templates in src/stack-name/template.py
+5. Run `make all` to build your templates
 
 # Usage
 

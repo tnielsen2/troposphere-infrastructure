@@ -160,7 +160,6 @@
       "Type": "AWS::CertificateManager::Certificate"
     },
     "cdnDistributionresume0tnielsenexample0com": {
-      "DependsOn": "cdnCertificateresume0tnielsenexample0com",
       "Properties": {
         "DistributionConfig": {
           "Aliases": [
@@ -493,7 +492,7 @@
       "Type": "AWS::Route53::RecordSet"
     },
     "v1Deployment": {
-      "DependsOn": "optionsmethod",
+      "DependsOn": "getmethod",
       "Properties": {
         "RestApiId": {
           "Ref": "api"

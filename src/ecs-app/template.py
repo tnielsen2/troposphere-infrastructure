@@ -104,6 +104,20 @@ def create_cfn_template(environment, region):
     # Prepare Template
     t = Template()
     t.set_description(f"{environment}: LAB - {app_group} Infrastructure")
+    t.set_metadata(
+        {
+            "cfn-lint": {
+                "config": {
+                    # Do not alert for overly permissive rules, this has a dedicated VPC and no security risk
+                    "ignore_checks": [
+                        "W10001",
+                        # Do not alert for hard coding AZs, this is fine for this use case
+                        "W3010",
+                    ]
+                }
+            }
+        }
+    )
 
     #### Start VPC resources
     vpc = t.add_resource(
@@ -188,7 +202,7 @@ def create_cfn_template(environment, region):
             MapPublicIpOnLaunch="true",
             AvailabilityZone=az,
             Tags=default_tags + Tags(Name=f"{environment}-subnet-{az}"),
-            DependsOn="vpc",
+            # DependsOn="vpc",
         )
     )
 
@@ -218,11 +232,11 @@ def create_cfn_template(environment, region):
     #### End VPC resources
 
     #### Start Security Group Resources
-    # Provision the Private Security Group
-    SecurityGroup = t.add_resource(
+    # Provision the Public Security Group
+    nlbPublicSecurityGroup = t.add_resource(
         ec2.SecurityGroup(
-            "SecurityGroup",
-            GroupDescription=f"{environment}: {app_group} Security Group",
+            "nlbPublicSecurityGroup",
+            GroupDescription=f"{environment}: {app_group} Public Security Group",
             VpcId=Ref(vpc),
             SecurityGroupIngress=sg_ingress_rules,
             Tags=default_tags + Tags(Name=f"{environment}-{app_group_l}-sg"),
@@ -233,12 +247,12 @@ def create_cfn_template(environment, region):
     SelfReferencingRule = t.add_resource(
         ec2.SecurityGroupIngress(
             "SelfReferencingRule",
-            GroupId=Ref(SecurityGroup),
+            GroupId=Ref(nlbPublicSecurityGroup),
             IpProtocol="-1",
-            SourceSecurityGroupId=Ref("SecurityGroup"),
+            SourceSecurityGroupId=Ref("nlbPublicSecurityGroup"),
             FromPort="1",
             ToPort="65535",
-            DependsOn="SecurityGroup",
+            # DependsOn="SecurityGroup",
         )
     )
     #### End Security Group Resources
@@ -252,7 +266,7 @@ def create_cfn_template(environment, region):
         efs.MountTarget(
             f"{app_group_ansi}efsMountTarget{az.replace('-', '')}",
             FileSystemId=Ref(efsfilesystem),
-            SecurityGroups=[Ref(SecurityGroup)],
+            SecurityGroups=[Ref(nlbPublicSecurityGroup)],
             SubnetId=Ref(subnet),
         )
     )
@@ -267,7 +281,7 @@ def create_cfn_template(environment, region):
             Scheme="internet-facing",
             Subnets=[Ref(subnet)],
             Tags=default_tags + Tags(Component="Load-Balancer"),
-            DependsOn=f"subnet{az.replace('-', '')}",
+            # DependsOn=f"subnet{az.replace('-', '')}",
         )
     )
 
@@ -292,7 +306,7 @@ def create_cfn_template(environment, region):
             Protocol="UDP",
             LoadBalancerArn=Ref(networkloadbalancer),
             DefaultActions=[elb.Action(Type="forward", TargetGroupArn=Ref(udp2456tg))],
-            DependsOn="networkloadbalancer",
+            # DependsOn="networkloadbalancer",
         )
     )
 
@@ -317,7 +331,7 @@ def create_cfn_template(environment, region):
             Protocol="UDP",
             LoadBalancerArn=Ref(networkloadbalancer),
             DefaultActions=[elb.Action(Type="forward", TargetGroupArn=Ref(udp2457tg))],
-            DependsOn="networkloadbalancer",
+            # DependsOn="networkloadbalancer",
         )
     )
 
@@ -342,7 +356,7 @@ def create_cfn_template(environment, region):
             Protocol="UDP",
             LoadBalancerArn=Ref(networkloadbalancer),
             DefaultActions=[elb.Action(Type="forward", TargetGroupArn=Ref(udp2458tg))],
-            DependsOn="networkloadbalancer",
+            # DependsOn="networkloadbalancer",
         )
     )
 
@@ -365,7 +379,7 @@ def create_cfn_template(environment, region):
             Protocol="TCP",
             LoadBalancerArn=Ref(networkloadbalancer),
             DefaultActions=[elb.Action(Type="forward", TargetGroupArn=Ref(tcp80tg))],
-            DependsOn="networkloadbalancer",
+            # DependsOn="networkloadbalancer",
         )
     )
     #### End NLB resources
@@ -454,7 +468,7 @@ def create_cfn_template(environment, region):
                 AwsvpcConfiguration=ecs.AwsvpcConfiguration(
                     AssignPublicIp="ENABLED",
                     Subnets=[Ref(subnet)],
-                    SecurityGroups=[Ref(SecurityGroup)],
+                    SecurityGroups=[Ref(nlbPublicSecurityGroup)],
                 )
             ),
             LoadBalancers=[

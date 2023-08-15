@@ -4,8 +4,8 @@
 .PHONY: all
 all: docker black-lint cfn-templates cfn-lint
 
-.PHONY: black-fix
-black-fix:
+.PHONY: fix
+fix:
 	@echo "Running black formatting..."
 	@docker run -it -v $(shell pwd):/app -w /app troposphere-infrastructure:local black .
 
