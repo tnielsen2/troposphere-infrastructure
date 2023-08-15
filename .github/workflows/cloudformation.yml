@@ -31,7 +31,7 @@ jobs:
       - name: Extract app names and trigger action
         run: |
           ls -ltarh
-          chmod +x ./update_cfn.sh
-          ./update_cfn.sh "${{ steps.list-json-changes.outputs.changed_files }}"
+          chmod +x ./.github/workflows/update_cfn.sh
+          ./.github/workflows/update_cfn.sh "${{ steps.list-json-changes.outputs.changed_files }}"
         shell: bash
 ...
