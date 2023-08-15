@@ -548,7 +548,7 @@
       "DependsOn": "vpc",
       "Properties": {
         "AvailabilityZone": "us-west-2a",
-        "CidrBlock": "10.174.0.0/24",
+        "CidrBlock": "10.175.0.0/24",
         "MapPublicIpOnLaunch": true,
         "Tags": [
           {
@@ -728,7 +728,7 @@
     },
     "vpc": {
       "Properties": {
-        "CidrBlock": "10.174.0.0/24",
+        "CidrBlock": "10.175.0.0/24",
         "EnableDnsHostnames": true,
         "Tags": [
           {
