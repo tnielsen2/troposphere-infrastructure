@@ -1,6 +1,6 @@
 import importlib
 import os
-import src.common.global_parameters as gp
+import src.common.global_variables as gp
 
 
 def import_and_execute_functions(directory):
@@ -8,8 +8,6 @@ def import_and_execute_functions(directory):
     Crawl the passed directory recursively and execute the create_cfn_template function
     contained within each module, passing environment and region arguments.
     :param directory: Directory to crawl. Can pass relative or absolute path.
-    :param cfn_environment: The environment argument to pass to create_cfn_template.
-    :param cfn_region: The region argument to pass to create_cfn_template.
     :return:
     """
     for folder_name in os.listdir(directory):
