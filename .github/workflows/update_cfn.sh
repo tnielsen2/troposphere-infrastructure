@@ -48,11 +48,11 @@ echo "All background tasks have finished."
 
 # Concatenate and display the output of all executions
 echo "==== Output of All Executions ===="
-for LOG_FILE in *.out.log; do
+for LOG_FILE in *-*.out.log; do
   echo "Output of $LOG_FILE:"
   cat "$LOG_FILE"
   echo "================================"
 done
 
 # Cleanup: Remove log files
-rm -f *.out.log *.err.log
+rm -f *-*.out.log *-*.err.log
