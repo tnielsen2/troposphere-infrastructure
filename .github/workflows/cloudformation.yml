@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'cfn/**.json'
-      - '.github/workflows/cloudformation.yml'
+      - '.github/workflows/*.*'
 
 jobs:
   update-action:
