@@ -2,6 +2,12 @@
 
 FILE_PATH="./.github/workflows/changed_files"
 
+# Check if the file is empty
+if [ ! -s "$FILE_PATH" ]; then
+  echo "No CFN files have changed."
+  exit 0
+fi
+
 # Array to store background task PIDs
 declare -a PIDS
 
