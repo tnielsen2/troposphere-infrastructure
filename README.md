@@ -1,9 +1,10 @@
 # troposphere-infrastructure
-Repo to demonstrate Troposphere repo layout and scalability
+Repo to demonstrate Troposphere repo layout and scalability. Mono repo intended for a single AWS account.
 
 
 # Setup
 1. Install Docker
+2. Set secret credentials in Actions
 
 # Usage
 

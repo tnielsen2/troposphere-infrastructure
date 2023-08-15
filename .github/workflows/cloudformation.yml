@@ -30,9 +30,7 @@ jobs:
 
       - name: Extract app names and trigger action
         run: |
-          for json_file in ${{ steps.list-json-changes.outputs.changed_files }}; do
-            echo "${json_file}" has changed.
-            # Perform your desired action here using $json_file
-          done
+          chmod +x process_files.sh
+          ./update_cfn.sh "${{ steps.list-json-changes.outputs.changed_files }}"
         shell: bash
 ...
