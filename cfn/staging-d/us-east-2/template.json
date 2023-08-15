@@ -1,0 +1,755 @@
+{
+  "Description": "staging-d: LAB - Lab-ECS-EFS-Server-Trent Infrastructure",
+  "Outputs": {
+    "subnetuseast2a": {
+      "Description": "staging-d Subnet us-east-2a ID",
+      "Value": {
+        "Ref": "subnetuseast2a"
+      }
+    }
+  },
+  "Resources": {
+    "SecurityGroup": {
+      "Properties": {
+        "GroupDescription": "staging-d: Lab-ECS-EFS-Server-Trent Security Group",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "public",
+            "FromPort": 2456,
+            "IpProtocol": "udp",
+            "ToPort": 2458
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "public",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Name",
+            "Value": "staging-d-lab-ecs-efs-server-trent-sg"
+          }
+        ],
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "SelfReferencingRule": {
+      "DependsOn": "SecurityGroup",
+      "Properties": {
+        "FromPort": "1",
+        "GroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "SourceSecurityGroupId": {
+          "Ref": "SecurityGroup"
+        },
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "TaskDefinition": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Cpu": 2048,
+            "Environment": [
+              {
+                "Name": "SERVER_NAME",
+                "Value": "Desert-Dwellers"
+              },
+              {
+                "Name": "SERVER_PORT",
+                "Value": "2456"
+              },
+              {
+                "Name": "WORLD_NAME",
+                "Value": "DESERT-DWELLERS-WORLD"
+              },
+              {
+                "Name": "SERVER_PUBLIC",
+                "Value": "true"
+              },
+              {
+                "Name": "UPDATE_INTERVAL",
+                "Value": "900"
+              },
+              {
+                "Name": "BACKUPS_INTERVAL",
+                "Value": "3600"
+              },
+              {
+                "Name": "BACKUPS_DIRECTORY",
+                "Value": "/config/backups"
+              },
+              {
+                "Name": "BACKUPS_MAX_AGE",
+                "Value": "3"
+              },
+              {
+                "Name": "BACKUPS_DIRECTORY_PERMISSIONS",
+                "Value": "755"
+              },
+              {
+                "Name": "BACKUPS_FILE_PERMISSIONS",
+                "Value": "644"
+              },
+              {
+                "Name": "CONFIG_DIRECTORY_PERMISSIONS",
+                "Value": "755"
+              },
+              {
+                "Name": "WORLDS_DIRECTORY_PERMISSIONS",
+                "Value": "755"
+              },
+              {
+                "Name": "WORLDS_FILE_PERMISSIONS",
+                "Value": "644"
+              },
+              {
+                "Name": "DNS_1",
+                "Value": "1.1.1.1"
+              },
+              {
+                "Name": "DNS_2",
+                "Value": "8.8.8.8"
+              },
+              {
+                "Name": "STEAMCMD_ARGS",
+                "Value": "validate"
+              },
+              {
+                "Name": "STATUS_HTTP",
+                "Value": "true"
+              },
+              {
+                "Name": "STATUS_HTTP_PORT",
+                "Value": "80"
+              },
+              {
+                "Name": "SERVER_PASS",
+                "Value": "br0d0wn"
+              },
+              {
+                "Name": "DISCORD_WEBHOOK",
+                "Value": "https://discord.com/api/webhooks/828692620762415145/nIFXPz03gY7FNjsUTIIak1LnhektPaitlWhcgDec8dMUuJvV5Jrk9zi5q5Egh3Vu9ItE"
+              },
+              {
+                "Name": "PRE_START_HOOK",
+                "Value": "curl -sfSL -X POST -H \"Content-Type: application/json\" -d \"{\"username\":\"Valheim\",\"content\":\"Valheim server is starting up.\"}\" \"$DISCORD_WEBHOOK\""
+              },
+              {
+                "Name": "POST_START_HOOK",
+                "Value": "curl -sfSL -X POST -H \"Content-Type: application/json\" -d \"{\"username\":\"Valheim\",\"content\":\"Valheim server has completed starting.\"}\" \"$DISCORD_WEBHOOK\""
+              },
+              {
+                "Name": "VALHEIM_LOG_FILTER_CONTAINS_Spawned",
+                "Value": "Got character ZDOID from"
+              },
+              {
+                "Name": "ON_VALHEIM_LOG_FILTER_CONTAINS_Spawned",
+                "Value": "{ read l; l=${l//*ZDOID from /}; l=${l// :*/}; msg=\"Player $l spawned into the world\"; curl -sfSL -X POST -H \"Content-Type: application/json\" -d \"{\"username\":\"Valheim\",\"content\":\"$msg\"}\" \"$DISCORD_WEBHOOK\"; }"
+              }
+            ],
+            "Essential": true,
+            "Image": "lloesche/valheim-server",
+            "Memory": 4096,
+            "MountPoints": [
+              {
+                "ContainerPath": "/config",
+                "SourceVolume": "data-vol"
+              }
+            ],
+            "Name": "staging-d-lab-ecs-efs-server-trent",
+            "PortMappings": [
+              {
+                "ContainerPort": 2456,
+                "Protocol": "udp"
+              },
+              {
+                "ContainerPort": 2457,
+                "Protocol": "udp"
+              },
+              {
+                "ContainerPort": 2458,
+                "Protocol": "udp"
+              },
+              {
+                "ContainerPort": 80,
+                "Protocol": "tcp"
+              }
+            ]
+          }
+        ],
+        "Cpu": "2048",
+        "Family": "staging-d-lab-ecs-efs-server-trent",
+        "Memory": "4096",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE"
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Component",
+            "Value": "ECS"
+          }
+        ],
+        "Volumes": [
+          {
+            "EFSVolumeConfiguration": {
+              "FilesystemId": {
+                "Ref": "efsfilesystem"
+              },
+              "RootDirectory": "/"
+            },
+            "Name": "data-vol"
+          }
+        ]
+      },
+      "Type": "AWS::ECS::TaskDefinition"
+    },
+    "cluster": {
+      "Properties": {
+        "ClusterName": "staging-d-lab-ecs-efs-server-trent-cluster",
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Component",
+            "Value": "ECS-Cluster"
+          }
+        ]
+      },
+      "Type": "AWS::ECS::Cluster"
+    },
+    "dnsRecord": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "networkloadbalancer",
+              "DNSName"
+            ]
+          },
+          "HostedZoneId": "ZLMOA37VPKANP"
+        },
+        "Comment": "staging-d-us-east-2-lab-ecs-efs-server-trent domain record",
+        "HostedZoneName": "trentnielsen.me.",
+        "Name": "vh.trentnielsen.me",
+        "Type": "A"
+      },
+      "Type": "AWS::Route53::RecordSet"
+    },
+    "efsfilesystem": {
+      "Properties": {
+        "FileSystemTags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          }
+        ]
+      },
+      "Type": "AWS::EFS::FileSystem"
+    },
+    "gatewayattachment": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "internetgateway"
+        },
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment"
+    },
+    "inboundacl": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "networkacl"
+        },
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "internetgateway": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Name",
+            "Value": "staging-d-igw"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "labecsefsservertrentefsMountTargetuseast2a": {
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "efsfilesystem"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "SecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "subnetuseast2a"
+        }
+      },
+      "Type": "AWS::EFS::MountTarget"
+    },
+    "networkacl": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Name",
+            "Value": "staging-d-network-acl"
+          }
+        ],
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAcl"
+    },
+    "networkloadbalancer": {
+      "DependsOn": "subnetuseast2a",
+      "Properties": {
+        "Scheme": "internet-facing",
+        "Subnets": [
+          {
+            "Ref": "subnetuseast2a"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Component",
+            "Value": "Load-Balancer"
+          }
+        ],
+        "Type": "network"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    },
+    "outboundacl": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "networkacl"
+        },
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "route": {
+      "DependsOn": "gatewayattachment",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "internetgateway"
+        },
+        "RouteTableId": {
+          "Ref": "routetable"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "routetable": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Name",
+            "Value": "staging-d-rtb"
+          }
+        ],
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
+    "service": {
+      "Properties": {
+        "Cluster": {
+          "Ref": "cluster"
+        },
+        "DesiredCount": 1,
+        "LaunchType": "FARGATE",
+        "LoadBalancers": [
+          {
+            "ContainerName": "staging-d-lab-ecs-efs-server-trent",
+            "ContainerPort": 2456,
+            "TargetGroupArn": {
+              "Ref": "udp2456tg"
+            }
+          },
+          {
+            "ContainerName": "staging-d-lab-ecs-efs-server-trent",
+            "ContainerPort": 2457,
+            "TargetGroupArn": {
+              "Ref": "udp2457tg"
+            }
+          },
+          {
+            "ContainerName": "staging-d-lab-ecs-efs-server-trent",
+            "ContainerPort": 2458,
+            "TargetGroupArn": {
+              "Ref": "udp2458tg"
+            }
+          }
+        ],
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Ref": "SecurityGroup"
+              }
+            ],
+            "Subnets": [
+              {
+                "Ref": "subnetuseast2a"
+              }
+            ]
+          }
+        },
+        "PlatformVersion": "1.4.0",
+        "PropagateTags": "TASK_DEFINITION",
+        "SchedulingStrategy": "REPLICA",
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Component",
+            "Value": "ECS"
+          }
+        ],
+        "TaskDefinition": {
+          "Ref": "TaskDefinition"
+        }
+      },
+      "Type": "AWS::ECS::Service"
+    },
+    "subnetuseast2a": {
+      "DependsOn": "vpc",
+      "Properties": {
+        "AvailabilityZone": "us-east-2a",
+        "CidrBlock": "10.175.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Name",
+            "Value": "staging-d-subnet-us-east-2a"
+          }
+        ],
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "subnetuseast2anetworkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "networkacl"
+        },
+        "SubnetId": {
+          "Ref": "subnetuseast2a"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "subnetuseast2aroute": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "routetable"
+        },
+        "SubnetId": {
+          "Ref": "subnetuseast2a"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "tcp80listener": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "tcp80tg"
+            },
+            "Type": "forward"
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "networkloadbalancer"
+        },
+        "Port": "80",
+        "Protocol": "TCP"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener"
+    },
+    "tcp80tg": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "Port": 80,
+        "Protocol": "TCP",
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    },
+    "udp2456listener": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "udp2456tg"
+            },
+            "Type": "forward"
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "networkloadbalancer"
+        },
+        "Port": "2456",
+        "Protocol": "UDP"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener"
+    },
+    "udp2456tg": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "HealthCheckPort": "80",
+        "HealthCheckProtocol": "TCP",
+        "Port": 2456,
+        "Protocol": "UDP",
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    },
+    "udp2457listener": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "udp2457tg"
+            },
+            "Type": "forward"
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "networkloadbalancer"
+        },
+        "Port": "2457",
+        "Protocol": "UDP"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener"
+    },
+    "udp2457tg": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "HealthCheckPort": "80",
+        "HealthCheckProtocol": "TCP",
+        "Port": 2457,
+        "Protocol": "UDP",
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    },
+    "udp2458listener": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "udp2458tg"
+            },
+            "Type": "forward"
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "networkloadbalancer"
+        },
+        "Port": "2458",
+        "Protocol": "UDP"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener"
+    },
+    "udp2458tg": {
+      "DependsOn": "networkloadbalancer",
+      "Properties": {
+        "HealthCheckPort": "80",
+        "HealthCheckProtocol": "TCP",
+        "Port": 2458,
+        "Protocol": "UDP",
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "vpc"
+        }
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    },
+    "vpc": {
+      "Properties": {
+        "CidrBlock": "10.175.0.0/24",
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "staging-d-us-east-2-lab-ecs-efs-server-trent"
+          },
+          {
+            "Key": "Name",
+            "Value": "staging-d-vpc"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::VPC"
+    }
+  }
+}
