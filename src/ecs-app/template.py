@@ -450,4 +450,4 @@ def create_cfn_template(environment, region):
     json_data = json.loads(t.to_json())
 
     # Save the file to disk
-    save_to_file(json_data, environment, region)
+    save_to_file(json_data, environment, region, app_group_l)
