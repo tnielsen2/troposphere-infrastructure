@@ -11,6 +11,11 @@ from troposphere.route53 import RecordSetType, AliasTarget
 from troposphere import Template, Ref, Output, GetAtt
 from troposphere.s3 import *
 
+#### Generation vars
+stack_regions = ['us-west-2',
+                 'us-east-2']
+stack_environments = ['dev-a']
+
 #### Stack vars
 # Variable for Route53 resource creation https://docs.aws.amazon.com/general/latest/gr/elb.html
 region_hosted_zone_id = 'ZLMOA37VPKANP'

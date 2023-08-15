@@ -3,7 +3,7 @@ import os
 import src.common.global_parameters as gp
 
 
-def import_and_execute_functions(directory, cfn_environment, cfn_region):
+def import_and_execute_functions(directory):
     """
     Crawl the passed directory recursively and execute the create_cfn_template function
     contained within each module, passing environment and region arguments.
@@ -21,11 +21,19 @@ def import_and_execute_functions(directory, cfn_environment, cfn_region):
                     full_module_name = f'src.{folder_name}.{module_name}'
                     module = importlib.import_module(full_module_name)
                     if hasattr(module, 'create_cfn_template') and callable(module.create_cfn_template):
-                        module.create_cfn_template(cfn_environment, cfn_region)
+                        if hasattr(module, 'stack_regions'):
+                            stack_regions = module.stack_regions
+                        else:
+                            stack_regions = gp.global_regions
+                        if hasattr(module, 'stack_environments'):
+                            stack_envs = module.stack_regions
+                        else:
+                            stack_envs = gp.global_environments
+                        for cfn_region in stack_regions:
+                            for cfn_environment in stack_envs:
+                                module.create_cfn_template(cfn_environment, cfn_region)
 
 
 # TODO: update this logic to check for adjacent config files that overwrite the global parameters
 if __name__ == '__main__':
-    for region in gp.global_regions:
-        for environment in gp.global_environments:
-            import_and_execute_functions('./src', environment, region)
+    import_and_execute_functions('./src')

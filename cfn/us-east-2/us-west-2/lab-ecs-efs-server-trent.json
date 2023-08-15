@@ -1,8 +1,8 @@
 {
-  "Description": "dev-c: LAB - Lab-ECS-EFS-Server-Trent Infrastructure",
+  "Description": "us-east-2: LAB - Lab-ECS-EFS-Server-Trent Infrastructure",
   "Outputs": {
     "subnetuswest2a": {
-      "Description": "dev-c Subnet us-west-2a ID",
+      "Description": "us-east-2 Subnet us-west-2a ID",
       "Value": {
         "Ref": "subnetuswest2a"
       }
@@ -11,7 +11,7 @@
   "Resources": {
     "SecurityGroup": {
       "Properties": {
-        "GroupDescription": "dev-c: Lab-ECS-EFS-Server-Trent Security Group",
+        "GroupDescription": "us-east-2: Lab-ECS-EFS-Server-Trent Security Group",
         "SecurityGroupIngress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -39,11 +39,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Name",
-            "Value": "dev-c-lab-ecs-efs-server-trent-sg"
+            "Value": "us-east-2-lab-ecs-efs-server-trent-sg"
           }
         ],
         "VpcId": {
@@ -179,7 +179,7 @@
                 "SourceVolume": "data-vol"
               }
             ],
-            "Name": "dev-c-lab-ecs-efs-server-trent",
+            "Name": "us-east-2-lab-ecs-efs-server-trent",
             "PortMappings": [
               {
                 "ContainerPort": 2456,
@@ -201,7 +201,7 @@
           }
         ],
         "Cpu": "2048",
-        "Family": "dev-c-lab-ecs-efs-server-trent",
+        "Family": "us-east-2-lab-ecs-efs-server-trent",
         "Memory": "4096",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
@@ -218,7 +218,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Component",
@@ -241,7 +241,7 @@
     },
     "cluster": {
       "Properties": {
-        "ClusterName": "dev-c-lab-ecs-efs-server-trent-cluster",
+        "ClusterName": "us-east-2-lab-ecs-efs-server-trent-cluster",
         "Tags": [
           {
             "Key": "Business",
@@ -253,7 +253,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Component",
@@ -274,7 +274,7 @@
           },
           "HostedZoneId": "ZLMOA37VPKANP"
         },
-        "Comment": "dev-c-us-west-2-lab-ecs-efs-server-trent domain record",
+        "Comment": "us-east-2-us-west-2-lab-ecs-efs-server-trent domain record",
         "HostedZoneName": "trentnielsen.me.",
         "Name": "vh.trentnielsen.me",
         "Type": "A"
@@ -294,7 +294,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           }
         ]
       },
@@ -337,11 +337,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Name",
-            "Value": "dev-c-igw"
+            "Value": "us-east-2-igw"
           }
         ]
       },
@@ -376,11 +376,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Name",
-            "Value": "dev-c-network-acl"
+            "Value": "us-east-2-network-acl"
           }
         ],
         "VpcId": {
@@ -409,7 +409,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Component",
@@ -459,11 +459,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Name",
-            "Value": "dev-c-rtb"
+            "Value": "us-east-2-rtb"
           }
         ],
         "VpcId": {
@@ -481,21 +481,21 @@
         "LaunchType": "FARGATE",
         "LoadBalancers": [
           {
-            "ContainerName": "dev-c-lab-ecs-efs-server-trent",
+            "ContainerName": "us-east-2-lab-ecs-efs-server-trent",
             "ContainerPort": 2456,
             "TargetGroupArn": {
               "Ref": "udp2456tg"
             }
           },
           {
-            "ContainerName": "dev-c-lab-ecs-efs-server-trent",
+            "ContainerName": "us-east-2-lab-ecs-efs-server-trent",
             "ContainerPort": 2457,
             "TargetGroupArn": {
               "Ref": "udp2457tg"
             }
           },
           {
-            "ContainerName": "dev-c-lab-ecs-efs-server-trent",
+            "ContainerName": "us-east-2-lab-ecs-efs-server-trent",
             "ContainerPort": 2458,
             "TargetGroupArn": {
               "Ref": "udp2458tg"
@@ -531,7 +531,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Component",
@@ -561,11 +561,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Name",
-            "Value": "dev-c-subnet-us-west-2a"
+            "Value": "us-east-2-subnet-us-west-2a"
           }
         ],
         "VpcId": {
@@ -741,11 +741,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-c-us-west-2-lab-ecs-efs-server-trent"
+            "Value": "us-east-2-us-west-2-lab-ecs-efs-server-trent"
           },
           {
             "Key": "Name",
-            "Value": "dev-c-vpc"
+            "Value": "us-east-2-vpc"
           }
         ]
       },
