@@ -4,7 +4,7 @@ FILE_PATH="./.github/workflows/changed_files"
 
 # Check if the file exists and is not empty
 if [ -e "$FILE_PATH" ] && [ $(stat -c %s "$FILE_PATH") -eq 0 ]; then
-  echo "The file exists but is empty."
+  echo "No CFN file changes detected. Exiting with code 0.."
   exit 0
 fi
 
