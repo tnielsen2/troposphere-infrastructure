@@ -1,10 +1,10 @@
 {
   "Description": "staging-d: LAB - Lab-ECS-EFS-Server-Trent Infrastructure",
   "Outputs": {
-    "subnetuseast2a": {
-      "Description": "staging-d Subnet us-east-2a ID",
+    "subnetuswest2a": {
+      "Description": "staging-d Subnet us-west-2a ID",
       "Value": {
-        "Ref": "subnetuseast2a"
+        "Ref": "subnetuswest2a"
       }
     }
   },
@@ -347,7 +347,7 @@
       },
       "Type": "AWS::EC2::InternetGateway"
     },
-    "labecsefsservertrentefsMountTargetuseast2a": {
+    "labecsefsservertrentefsMountTargetuswest2a": {
       "Properties": {
         "FileSystemId": {
           "Ref": "efsfilesystem"
@@ -358,7 +358,7 @@
           }
         ],
         "SubnetId": {
-          "Ref": "subnetuseast2a"
+          "Ref": "subnetuswest2a"
         }
       },
       "Type": "AWS::EFS::MountTarget"
@@ -390,12 +390,12 @@
       "Type": "AWS::EC2::NetworkAcl"
     },
     "networkloadbalancer": {
-      "DependsOn": "subnetuseast2a",
+      "DependsOn": "subnetuswest2a",
       "Properties": {
         "Scheme": "internet-facing",
         "Subnets": [
           {
-            "Ref": "subnetuseast2a"
+            "Ref": "subnetuswest2a"
           }
         ],
         "Tags": [
@@ -512,7 +512,7 @@
             ],
             "Subnets": [
               {
-                "Ref": "subnetuseast2a"
+                "Ref": "subnetuswest2a"
               }
             ]
           }
@@ -544,11 +544,11 @@
       },
       "Type": "AWS::ECS::Service"
     },
-    "subnetuseast2a": {
+    "subnetuswest2a": {
       "DependsOn": "vpc",
       "Properties": {
-        "AvailabilityZone": "us-east-2a",
-        "CidrBlock": "10.175.0.0/24",
+        "AvailabilityZone": "us-west-2a",
+        "CidrBlock": "10.174.0.0/24",
         "MapPublicIpOnLaunch": true,
         "Tags": [
           {
@@ -565,7 +565,7 @@
           },
           {
             "Key": "Name",
-            "Value": "staging-d-subnet-us-east-2a"
+            "Value": "staging-d-subnet-us-west-2a"
           }
         ],
         "VpcId": {
@@ -574,24 +574,24 @@
       },
       "Type": "AWS::EC2::Subnet"
     },
-    "subnetuseast2anetworkacl": {
+    "subnetuswest2anetworkacl": {
       "Properties": {
         "NetworkAclId": {
           "Ref": "networkacl"
         },
         "SubnetId": {
-          "Ref": "subnetuseast2a"
+          "Ref": "subnetuswest2a"
         }
       },
       "Type": "AWS::EC2::SubnetNetworkAclAssociation"
     },
-    "subnetuseast2aroute": {
+    "subnetuswest2aroute": {
       "Properties": {
         "RouteTableId": {
           "Ref": "routetable"
         },
         "SubnetId": {
-          "Ref": "subnetuseast2a"
+          "Ref": "subnetuswest2a"
         }
       },
       "Type": "AWS::EC2::SubnetRouteTableAssociation"
@@ -728,7 +728,7 @@
     },
     "vpc": {
       "Properties": {
-        "CidrBlock": "10.175.0.0/24",
+        "CidrBlock": "10.174.0.0/24",
         "EnableDnsHostnames": true,
         "Tags": [
           {

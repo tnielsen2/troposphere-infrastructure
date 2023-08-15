@@ -17,8 +17,7 @@ region_hosted_zone_id = 'ZLMOA37VPKANP'
 app_group = 'Lab-ECS-EFS-Server-Trent'
 
 ### VPC vars
-cidr = '10.175.0.0/24'
-az = 'us-east-2a'
+cidr = '10.174.0.0/24'
 
 ### Security group vars
 sg_ingress_rules = []
@@ -92,6 +91,7 @@ app_group_ansi = app_group_l.replace("-", "")
 
 
 def create_cfn_template(environment, region):
+    az = f'{region}a'
     # Pull In Tags
     default_tags = Tags(Business='LAB') + \
                    Tags(Service=app_group_l) + \
