@@ -11,10 +11,10 @@ class SecurityGroupResourceIdRule(CloudFormationLintRule):
     cfn-lint cloudformation/**/*.json -a pathtomodules/tests/cfn-lint/rules/
     """
 
-    id = 'W11001'
-    shortdesc = 'Invalid security group resource ID.'
-    description = 'Security Group resource ID does not match approved format.'
-    tags = ['ec2', 'security-group', 'regex']
+    id = "W11001"
+    shortdesc = "Invalid security group resource ID."
+    description = "Security Group resource ID does not match approved format."
+    tags = ["ec2", "security-group", "regex"]
 
     def match(self, cfn):
         matches = []
@@ -38,40 +38,38 @@ class SecurityGroupResourceIdRule(CloudFormationLintRule):
         #   Conditionally, some security groups might use a prefix list that takes up more rule assignments that require
         #   their own dedicated security group. These are denoted with the term "Prefix" in them.
         #   Exammple: albPublicPrefixSecurityGroup, albPrivatePrefixSecurityGroup
-        desired_match_re = '(.*Admin|default|defaultRestore|.*Dump|.*exemption|(resource_type)Public|(resource_type)PublicPrefix|(resource_type)Private|(resource_type)PrivatePrefix)(SecurityGroup)'
+        desired_match_re = "(.*Admin|default|defaultRestore|.*Dump|.*exemption|(resource_type)Public|(resource_type)PublicPrefix|(resource_type)Private|(resource_type)PrivatePrefix)(SecurityGroup)"
         resource_types = [
-            'alb',  # Application load balancer
-            'asg',  # Autoscaling group
-            'cache',  # Elasticache instance
-            'default',  # Default security group used for apps requiring overly permissive access. Ex. ICMP
-            'ec2',  # EC2 instances
-            'ecs',  # ECS services
-            'efs',  # EFS instances
-            'glue',  # Glue connections/resources
-            'lambda',  # Lambda functions
-            'privateLinkEndpoint',  # AWS PrivateLink endpoints
-            'r53',  # R53 Resolver endpoints
-            'rds',  # RDS instances
-            'rdsProxy',  # RDS Proxy instances
-            'rdsProxyEndpoint',  # RDS Proxy VPC endpoints
-            'redshift',  # Redshift instances
-            'mwaa',  # Managed Workflows for Apache Airflow
-            'nlb',  # Network load balancer
-            'vpn',
+            "alb",  # Application load balancer
+            "asg",  # Autoscaling group
+            "cache",  # Elasticache instance
+            "default",  # Default security group used for apps requiring overly permissive access. Ex. ICMP
+            "ec2",  # EC2 instances
+            "ecs",  # ECS services
+            "efs",  # EFS instances
+            "glue",  # Glue connections/resources
+            "lambda",  # Lambda functions
+            "privateLinkEndpoint",  # AWS PrivateLink endpoints
+            "r53",  # R53 Resolver endpoints
+            "rds",  # RDS instances
+            "rdsProxy",  # RDS Proxy instances
+            "rdsProxyEndpoint",  # RDS Proxy VPC endpoints
+            "redshift",  # Redshift instances
+            "mwaa",  # Managed Workflows for Apache Airflow
+            "nlb",  # Network load balancer
+            "vpn",
         ]  # SSLVPN endpoints
         # replace 'resource_type' string in desired_match_re for readability of resource_types
         regex_pattern = desired_match_re.replace(
-            'resource_type', '(?:' + '|'.join(resource_types) + ')'
+            "resource_type", "(?:" + "|".join(resource_types) + ")"
         )
 
         # Loop through all SecurityGroup resources in the CloudFormation template
         for resource_name, resource in cfn.get_resources(
-            'AWS::EC2::SecurityGroup'
+            "AWS::EC2::SecurityGroup"
         ).items():
             if not re.match(regex_pattern, resource_name):
                 message = f"SecurityGroup '{resource_name}' resource ID does not match approved formatting."
-                matches.append(
-                    RuleMatch(['Resources', resource_name], message)
-                )
+                matches.append(RuleMatch(["Resources", resource_name], message))
 
         return matches

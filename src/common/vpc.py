@@ -5,105 +5,105 @@ from troposphere import GetAZs
 from troposphere import Select
 
 vpc_settings = {
-    'us-west-2': {
-        'dev-a': {
-            'vpc_type': 'private',
-            'cidr': '10.0.0.0/21',
-            'subnet_count': 3,
+    "us-west-2": {
+        "dev-a": {
+            "vpc_type": "private",
+            "cidr": "10.0.0.0/21",
+            "subnet_count": 3,
         },
     },
-    'us-east-2': {
-        'dev-a': {
-            'vpc_type': 'private',
-            'cidr': '10.0.8.0/21',
-            'subnet_count': 3,
+    "us-east-2": {
+        "dev-a": {
+            "vpc_type": "private",
+            "cidr": "10.0.8.0/21",
+            "subnet_count": 3,
         }
     },
-    'us-east-1': {
-        'dev-a': {
-            'vpc_type': 'public',
-            'cidr': '10.0.16.0/21',
-            'subnet_count': 3,
+    "us-east-1": {
+        "dev-a": {
+            "vpc_type": "public",
+            "cidr": "10.0.16.0/21",
+            "subnet_count": 3,
         }
     },
 }
 
 availability_zones = {
-    'us-east-1': [
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
-        Select(3, GetAZs('')),
+    "us-east-1": [
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
+        Select(3, GetAZs("")),
     ],
-    'us-west-1': [
-        Select(0, GetAZs('')),
-        Select(2, GetAZs('')),
+    "us-west-1": [
+        Select(0, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'us-west-2': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "us-west-2": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'ap-south-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "ap-south-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
-    'ap-southeast-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "ap-southeast-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
-    'ap-southeast-2': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "ap-southeast-2": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'ap-northeast-1': [
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "ap-northeast-1": [
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'ap-northeast-2': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "ap-northeast-2": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
-    'ap-northeast-3': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "ap-northeast-3": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
-    'eu-central-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "eu-central-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
-    'eu-west-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "eu-west-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'eu-west-2': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "eu-west-2": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'eu-west-3': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "eu-west-3": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'eu-north-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "eu-north-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
-    'sa-east-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "sa-east-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'us-east-2': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
-        Select(2, GetAZs('')),
+    "us-east-2": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
+        Select(2, GetAZs("")),
     ],
-    'ca-central-1': [
-        Select(0, GetAZs('')),
-        Select(1, GetAZs('')),
+    "ca-central-1": [
+        Select(0, GetAZs("")),
+        Select(1, GetAZs("")),
     ],
 }
 
@@ -125,12 +125,12 @@ def add_cidr_mapping(
     :return:
     """
     az_subnets_formatted = []
-    region_cidr_netmask = str(region_cidr.split('/', 1)[1])
-    if region_vpc_type == 'public':
+    region_cidr_netmask = str(region_cidr.split("/", 1)[1])
+    if region_vpc_type == "public":
         converted_netmask = int(region_cidr_netmask) + int(
             math.ceil(math.log(az_count, 2))
         )
-    elif region_vpc_type == 'private':
+    elif region_vpc_type == "private":
         subnet_count = az_count * 2
         converted_netmask = int(region_cidr_netmask) + int(
             math.ceil(math.log(subnet_count, 2))
@@ -138,7 +138,7 @@ def add_cidr_mapping(
     else:
         subnet_count = 0
         converted_netmask = 0
-    if region_cidr != 'undefined':
+    if region_cidr != "undefined":
         reformat_cidr = ipaddress.IPv4Network(region_cidr)
         az_subnets = list(reformat_cidr.subnets(new_prefix=converted_netmask))
         for ip in az_subnets:
@@ -146,23 +146,23 @@ def add_cidr_mapping(
     mapping = {}
     r = region
     mapping[r] = {}
-    mapping[r]['vpc'] = region_cidr
-    if region_vpc_type == 'public':
+    mapping[r]["vpc"] = region_cidr
+    if region_vpc_type == "public":
         for index, subnet in enumerate(az_subnets_formatted):
-            mapping[r]['publicsubnet{}'.format(index + 1)] = subnet
-        template.add_mapping('CidrAllocations', mapping)
-    elif region_vpc_type == 'private':
+            mapping[r]["publicsubnet{}".format(index + 1)] = subnet
+        template.add_mapping("CidrAllocations", mapping)
+    elif region_vpc_type == "private":
         length = len(az_subnets_formatted)
         middle_index = length // 2
         first_half = az_subnets_formatted[:middle_index]
         second_half = az_subnets_formatted[middle_index:]
         for index, subnet in enumerate(first_half):
-            mapping[r]['publicsubnet{}'.format(index + 1)] = subnet
+            mapping[r]["publicsubnet{}".format(index + 1)] = subnet
         for index, subnet in enumerate(second_half):
-            mapping[r]['privatesubnet{}'.format(index + 1)] = subnet
-        template.add_mapping('CidrAllocations', mapping)
+            mapping[r]["privatesubnet{}".format(index + 1)] = subnet
+        template.add_mapping("CidrAllocations", mapping)
     # Create subnet mapping for user type VPCs.
-    elif region_vpc_type == 'user':
+    elif region_vpc_type == "user":
         # Call function to return list of allocated subnets from cidr
         public_list, private_list = generate_user_subnet_allocations(
             cidr=region_cidr, number_of_az=az_count
@@ -171,16 +171,16 @@ def add_cidr_mapping(
         index = 0
         # Loop through public subnets and create CF mapping into a dict
         for subnet in public_list:
-            mapping[r]['publicsubnet{}'.format(index + 1)] = str(subnet)
+            mapping[r]["publicsubnet{}".format(index + 1)] = str(subnet)
             index = index + 1
         # Set looping index again to 0
         index = 0
         # Loop through private subnets and create CF mapping into a dict
         for subnet in private_list:
-            mapping[r]['privatesubnet{}'.format(index + 1)] = str(subnet)
+            mapping[r]["privatesubnet{}".format(index + 1)] = str(subnet)
             index = index + 1
         # Pass dict into mapping object in our template
-        template.add_mapping('CidrAllocations', mapping)
+        template.add_mapping("CidrAllocations", mapping)
 
 
 def generate_user_subnet_allocations(cidr, number_of_az):
@@ -201,15 +201,11 @@ def generate_user_subnet_allocations(cidr, number_of_az):
         public_new_prefix = 25
     # Chop up the cidr into smaller subnets for public NAT gateway subnets. Depending on the prefix size depends on
     # how big we make our public subnet
-    public_cidr_chopped = list(
-        cidr_formatted.subnets(new_prefix=public_new_prefix)
-    )
+    public_cidr_chopped = list(cidr_formatted.subnets(new_prefix=public_new_prefix))
     # Use the first available small subnets and allocated as many as there are for AZs declared in the region
     public_cidrs = public_cidr_chopped[:number_of_az]
     # Allocate the VPC cidr into /24 subnets into a variable for comparison
-    private_cidr_chopped = list(
-        cidr_formatted.subnets(new_prefix=private_new_prefix)
-    )
+    private_cidr_chopped = list(cidr_formatted.subnets(new_prefix=private_new_prefix))
     # Create variable for popping indexes off of when an overlapping public subnet is found
     usable_private_cidrs = private_cidr_chopped
     # Loop through and compare public and private subnets and ensure there is no overlap.

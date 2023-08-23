@@ -15,9 +15,9 @@ def get_network_dict():
     # Loop through all cidrs and convert from string type to ipaddress type
     for region in vpc_settings:
         for environment in vpc_settings[region]:
-            network_objects[f'{environment}.{region}'] = vpc_settings[region][
+            network_objects[f"{environment}.{region}"] = vpc_settings[region][
                 environment
-            ]['cidr']
+            ]["cidr"]
     return network_objects
 
 
@@ -35,7 +35,7 @@ def validate_ip_network(address):
 def test_environments():
     cidrs = get_network_dict()
     ipcheck = True
-    assert_error = ''
+    assert_error = ""
     for k in cidrs:
         if validate_ip_network(cidrs[k]):
             # Compare to all defined networks
@@ -46,17 +46,13 @@ def test_environments():
                         if ipaddress.ip_network(cidrs[k]).overlaps(
                             ipaddress.ip_network(cidrs[i])
                         ):
-                            assert_error += (
-                                '\n{} ({}) overlaps {} ({})'.format(
-                                    cidrs[i], i, cidrs[k], k
-                                )
+                            assert_error += "\n{} ({}) overlaps {} ({})".format(
+                                cidrs[i], i, cidrs[k], k
                             )
                             ipcheck = False
 
         else:
             ipcheck = False
-            assert_error += '\n{} ({}) is not a valid ip network'.format(
-                cidrs[k], k
-            )
+            assert_error += "\n{} ({}) is not a valid ip network".format(cidrs[k], k)
 
     assert ipcheck is True, assert_error

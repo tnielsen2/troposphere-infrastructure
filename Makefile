@@ -30,14 +30,20 @@ docker:
 	@docker build -t troposphere-infrastructure:local .
 
 .PHONY: lint
-lint: black-lint cfn-lint
+lint: black-lint cfn-lint pytest
+
+.PHONY: pytest
+pytest:
+	@echo "Running Pytest..."
+	@docker run -it -v $(shell pwd):/app -w /app troposphere-infrastructure:local pytest tests/
 
 .PHONY: help
 help:
 	@echo "Usage:"
-	@echo "  make all           Create and lint CloudFormation templates"
-	@echo "  make black-lint     Run black linting"
-	@echo "  make cfn-templates Create CloudFormation templates"
-	@echo "  make cfn-lint      Run CloudFormation linting"
-	@echo "  make help          Show this help message"
-	@echo "  make lint          Run all linting"
+	@echo "  make all             Create and lint CloudFormation templates"
+	@echo "  make black-lint      Run black linting"
+	@echo "  make cfn-templates   Create CloudFormation templates"
+	@echo "  make cfn-lint        Run CloudFormation linting"
+	@echo "  make help            Show this help message"
+	@echo "  make lint            Run all linting and tests"
+	@echo "  make pytest          Run pytest"

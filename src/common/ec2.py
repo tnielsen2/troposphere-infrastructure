@@ -18,7 +18,7 @@ def sg_allow_from(ip_dictionary, startportrange, endportrange, protocol):
                 FromPort=startportrange,
                 ToPort=endportrange,
                 CidrIp=str(value),
-                Description=str(f'{key}'),
+                Description=str(f"{key}"),
             )
         )
     return rules
