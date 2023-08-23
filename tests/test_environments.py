@@ -1,6 +1,6 @@
 import ipaddress
 
-from troposphere_infrastructure.src.common.vpc import vpc_settings
+from src.common.vpc import vpc_settings
 
 
 #####
