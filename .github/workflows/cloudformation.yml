@@ -50,7 +50,7 @@ jobs:
           black --check --diff .
 
   update-action:
-    needs: [cfn-lint, black-fmt]
+    needs: [cfn-lint, black-fmt, pytest]
     runs-on: ubuntu-latest
 
     env:
