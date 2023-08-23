@@ -84,6 +84,9 @@
     },
     "VPCID": {
       "Description": "dev-a VPC ID",
+      "Export": {
+        "Name": "dev-a-vpc-vpc-id"
+      },
       "Value": {
         "Ref": "VPC"
       }

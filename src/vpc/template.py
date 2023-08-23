@@ -374,6 +374,7 @@ def create_cfn_template(environment, region):
             Output(
                 "VPCID",
                 Description=f"{environment} VPC ID",
+                Export=Export(f"{environment}-{app_group_l}-vpc-id"),
                 Value=Ref(vpc),
             )
         ]
