@@ -234,7 +234,7 @@
               "DNSName"
             ]
           },
-          "HostedZoneId": "ZLMOA37VPKANP"
+          "HostedZoneId": "Z0020946T9GO0TQ7KJ0X"
         },
         "Comment": "dev-a-us-west-2-ecs-app domain record",
         "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
