@@ -1,5 +1,5 @@
 {
-  "Description": "YIT: s3-static-site",
+  "Description": "dev-a: LAB - s3-static-site Infrastructure",
   "Outputs": {
     "ApiEndpoint": {
       "Description": "Endpoint for this stage of the api",
@@ -17,11 +17,11 @@
         ]
       }
     },
-    "CDNDomainOutputresume0tnielsenexample0com": {
+    "CDNDomainOutputstatic0pxgsandboxsre0yamww0cloud": {
       "Description": "Domain for CDN",
       "Value": {
         "Fn::GetAtt": [
-          "cdnDistributionresume0tnielsenexample0com",
+          "cdnDistributionstatic0pxgsandboxsre0yamww0cloud",
           "DomainName"
         ]
       }
@@ -108,8 +108,8 @@
     "apiCname": {
       "Properties": {
         "Comment": "s3-static-site API gateway domain record",
-        "HostedZoneName": "tnielsen-example.com.",
-        "Name": "api.tnielsen-example.com",
+        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
+        "Name": "api.pxg-sandbox-sre.yamww.cloud",
         "ResourceRecords": [
           {
             "Fn::Join": [
@@ -128,18 +128,18 @@
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "cdnCertificateresume0tnielsenexample0com": {
-      "DependsOn": "s3staticsite0resume0tnielsenexample0com0Bucket",
+    "cdnCertificatestatic0pxgsandboxsre0yamww0cloud": {
+      "DependsOn": "s3staticsite0static0pxgsandboxsre0yamww0cloud0Bucket",
       "Properties": {
-        "DomainName": "resume.tnielsen-example.com",
+        "DomainName": "static.pxg-sandbox-sre.yamww.cloud",
         "DomainValidationOptions": [
           {
-            "DomainName": "resume.tnielsen-example.com",
-            "ValidationDomain": "tnielsen-example.com"
+            "DomainName": "static.pxg-sandbox-sre.yamww.cloud",
+            "ValidationDomain": "pxg-sandbox-sre.yamww.cloud"
           }
         ],
         "SubjectAlternativeNames": [
-          "www.resume.tnielsen-example.com"
+          "www.static.pxg-sandbox-sre.yamww.cloud"
         ],
         "Tags": [
           {
@@ -159,14 +159,14 @@
       },
       "Type": "AWS::CertificateManager::Certificate"
     },
-    "cdnDistributionresume0tnielsenexample0com": {
+    "cdnDistributionstatic0pxgsandboxsre0yamww0cloud": {
       "Properties": {
         "DistributionConfig": {
           "Aliases": [
-            "resume.tnielsen-example.com",
-            "www.resume.tnielsen-example.com"
+            "static.pxg-sandbox-sre.yamww.cloud",
+            "www.static.pxg-sandbox-sre.yamww.cloud"
           ],
-          "Comment": "dev-a - resume.tnielsen-example.com",
+          "Comment": "dev-a - static.pxg-sandbox-sre.yamww.cloud",
           "CustomErrorResponses": [
             {
               "ErrorCachingMinTTL": "0",
@@ -218,7 +218,7 @@
             "MaxTTL": 31536000,
             "MinTTL": 0,
             "SmoothStreaming": false,
-            "TargetOriginId": "dev-a-s3-static-site-resume.tnielsen-example.com",
+            "TargetOriginId": "dev-a-s3-static-site-static.pxg-sandbox-sre.yamww.cloud",
             "ViewerProtocolPolicy": "redirect-to-https"
           },
           "Enabled": true,
@@ -241,7 +241,7 @@
                       "//",
                       {
                         "Fn::GetAtt": [
-                          "s3staticsite0resume0tnielsenexample0com0Bucket",
+                          "s3staticsite0static0pxgsandboxsre0yamww0cloud0Bucket",
                           "WebsiteURL"
                         ]
                       }
@@ -249,13 +249,13 @@
                   }
                 ]
               },
-              "Id": "dev-a-s3-static-site-resume.tnielsen-example.com"
+              "Id": "dev-a-s3-static-site-static.pxg-sandbox-sre.yamww.cloud"
             }
           ],
           "PriceClass": "PriceClass_All",
           "ViewerCertificate": {
             "AcmCertificateArn": {
-              "Ref": "cdnCertificateresume0tnielsenexample0com"
+              "Ref": "cdnCertificatestatic0pxgsandboxsre0yamww0cloud"
             },
             "MinimumProtocolVersion": "TLSv1.2_2018",
             "SslSupportMethod": "sni-only"
@@ -396,9 +396,9 @@
       },
       "Type": "AWS::ApiGateway::Resource"
     },
-    "s3staticsite0resume0tnielsenexample0com0Bucket": {
+    "s3staticsite0static0pxgsandboxsre0yamww0cloud0Bucket": {
       "Properties": {
-        "BucketName": "resume.tnielsen-example.com",
+        "BucketName": "static.pxg-sandbox-sre.yamww.cloud",
         "Tags": [
           {
             "Key": "Business",
@@ -410,7 +410,7 @@
           },
           {
             "Key": "Component",
-            "Value": "resume.tnielsen-example.com"
+            "Value": "static.pxg-sandbox-sre.yamww.cloud"
           }
         ],
         "WebsiteConfiguration": {
@@ -419,74 +419,74 @@
       },
       "Type": "AWS::S3::Bucket"
     },
-    "s3staticsiteresume0tnielsenexample0comAAAAdns": {
+    "s3staticsitestatic0pxgsandboxsre0yamww0cloudAAAAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0tnielsenexample0com",
+              "cdnDistributionstatic0pxgsandboxsre0yamww0cloud",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "resume.tnielsen-example.com domain record",
-        "HostedZoneName": "tnielsen-example.com.",
-        "Name": "resume.tnielsen-example.com",
+        "Comment": "static.pxg-sandbox-sre.yamww.cloud domain record",
+        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
+        "Name": "static.pxg-sandbox-sre.yamww.cloud",
         "Type": "AAAA"
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "s3staticsiteresume0tnielsenexample0comAdns": {
+    "s3staticsitestatic0pxgsandboxsre0yamww0cloudAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0tnielsenexample0com",
+              "cdnDistributionstatic0pxgsandboxsre0yamww0cloud",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "resume.tnielsen-example.com domain record",
-        "HostedZoneName": "tnielsen-example.com.",
-        "Name": "resume.tnielsen-example.com",
+        "Comment": "static.pxg-sandbox-sre.yamww.cloud domain record",
+        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
+        "Name": "static.pxg-sandbox-sre.yamww.cloud",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "s3staticsiteresume0tnielsenexample0comAlternativeAAAAdns": {
+    "s3staticsitestatic0pxgsandboxsre0yamww0cloudAlternativeAAAAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0tnielsenexample0com",
+              "cdnDistributionstatic0pxgsandboxsre0yamww0cloud",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "www.resume.tnielsen-example.com domain record",
-        "HostedZoneName": "tnielsen-example.com.",
-        "Name": "www.resume.tnielsen-example.com",
+        "Comment": "www.static.pxg-sandbox-sre.yamww.cloud domain record",
+        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
+        "Name": "www.static.pxg-sandbox-sre.yamww.cloud",
         "Type": "AAAA"
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "s3staticsiteresume0tnielsenexample0comAlternativeAdns": {
+    "s3staticsitestatic0pxgsandboxsre0yamww0cloudAlternativeAdns": {
       "Properties": {
         "AliasTarget": {
           "DNSName": {
             "Fn::GetAtt": [
-              "cdnDistributionresume0tnielsenexample0com",
+              "cdnDistributionstatic0pxgsandboxsre0yamww0cloud",
               "DomainName"
             ]
           },
           "HostedZoneId": "Z2FDTNDATAQYW2"
         },
-        "Comment": "www.resume.tnielsen-example.com domain record",
-        "HostedZoneName": "tnielsen-example.com.",
-        "Name": "www.resume.tnielsen-example.com",
+        "Comment": "www.static.pxg-sandbox-sre.yamww.cloud domain record",
+        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
+        "Name": "www.static.pxg-sandbox-sre.yamww.cloud",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"

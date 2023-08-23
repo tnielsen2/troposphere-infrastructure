@@ -25,6 +25,20 @@ jobs:
       - name: Run cfn-lint
         run: cfn-lint cfn/**/*.json -a tests/cfn-lint/rules
 
+  pytest:
+    name: Run Pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Pytest
+        run: pytest tests/
+
   black-fmt:
     name: Python Black Linting
     runs-on: ubuntu-latest

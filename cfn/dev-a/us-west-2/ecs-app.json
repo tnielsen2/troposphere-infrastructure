@@ -237,8 +237,8 @@
           "HostedZoneId": "ZLMOA37VPKANP"
         },
         "Comment": "dev-a-us-west-2-ecs-app domain record",
-        "HostedZoneName": "tnielsen-example.com.",
-        "Name": "vh.tnielsen-example.com",
+        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
+        "Name": "vh.pxg-sandbox-sre.yamww.cloud",
         "Type": "A"
       },
       "Type": "AWS::Route53::RecordSet"

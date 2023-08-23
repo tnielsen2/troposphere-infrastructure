@@ -55,7 +55,7 @@ def create_cfn_template(environment, region):
     dns_domain = 'pxg-sandbox-sre.yamww.cloud'
     # Prepare Template
     t = Template()
-    t.set_description(f'{app_group}')
+    t.set_description(f'{environment}: LAB - {app_group} Infrastructure')
 
     ################################################################################################################
     # CloudFront and S3 for static hosting
