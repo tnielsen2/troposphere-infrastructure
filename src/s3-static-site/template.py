@@ -37,7 +37,7 @@ app_group_ansi = app_group_l.replace("-", "")
 cfront_zone_id = "Z2FDTNDATAQYW2"
 
 # Create Default Tags
-DefaultTags = Tags(Business="YIT") + Tags(Lab="True")
+DefaultTags = Tags(Business="LAB") + Tags(Lab="True")
 
 # Set template variables
 stage_name = "v1"

@@ -17,7 +17,11 @@ stack_environments = ["dev-a"]
 
 #### Stack vars
 # Variable for Route53 resource creation https://docs.aws.amazon.com/general/latest/gr/elb.html
-region_hosted_zone_id = "Z0020946T9GO0TQ7KJ0X"
+alb_hosted_zone_ids = {
+    "us-east-2": "ZLMOA37VPKANP",
+    "us-east-1": "Z26RNL4JYFTOTI",
+    "us-west-2": "Z18D5FSROUN65G",
+}
 app_group = "ecs-app"
 
 ### VPC vars
@@ -501,7 +505,7 @@ def create_cfn_template(environment, region):
             Name=f"vh.{app_domain}",
             Type="A",
             AliasTarget=AliasTarget(
-                HostedZoneId=region_hosted_zone_id,
+                HostedZoneId=alb_hosted_zone_ids[region],
                 DNSName=GetAtt("networkloadbalancer", "DNSName"),
             ),
         )
