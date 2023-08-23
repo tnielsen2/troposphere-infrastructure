@@ -10,14 +10,6 @@
       }
     }
   },
-  "Outputs": {
-    "subnetuswest2a": {
-      "Description": "dev-a Subnet us-west-2a ID",
-      "Value": {
-        "Ref": "subnetuswest2a"
-      }
-    }
-  },
   "Resources": {
     "SelfReferencingRule": {
       "Properties": {
@@ -243,7 +235,7 @@
       },
       "Type": "AWS::Route53::RecordSet"
     },
-    "ecsappefsMountTargetuswest2a": {
+    "ecsappefsMountTarget0": {
       "Properties": {
         "FileSystemId": {
           "Ref": "efsfilesystem"
@@ -254,7 +246,39 @@
           }
         ],
         "SubnetId": {
-          "Ref": "subnetuswest2a"
+          "Fn::ImportValue": "dev-a-ecs-app-privatesubnet1-ID"
+        }
+      },
+      "Type": "AWS::EFS::MountTarget"
+    },
+    "ecsappefsMountTarget1": {
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "efsfilesystem"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "nlbPublicSecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Fn::ImportValue": "dev-a-ecs-app-privatesubnet2-ID"
+        }
+      },
+      "Type": "AWS::EFS::MountTarget"
+    },
+    "ecsappefsMountTarget2": {
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "efsfilesystem"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "nlbPublicSecurityGroup"
+          }
+        ],
+        "SubnetId": {
+          "Fn::ImportValue": "dev-a-ecs-app-privatesubnet3-ID"
         }
       },
       "Type": "AWS::EFS::MountTarget"
@@ -278,86 +302,18 @@
       },
       "Type": "AWS::EFS::FileSystem"
     },
-    "gatewayattachment": {
-      "Properties": {
-        "InternetGatewayId": {
-          "Ref": "internetgateway"
-        },
-        "VpcId": {
-          "Ref": "vpc"
-        }
-      },
-      "Type": "AWS::EC2::VPCGatewayAttachment"
-    },
-    "inboundacl": {
-      "Properties": {
-        "CidrBlock": "0.0.0.0/0",
-        "Egress": false,
-        "NetworkAclId": {
-          "Ref": "networkacl"
-        },
-        "Protocol": "-1",
-        "RuleAction": "allow",
-        "RuleNumber": "100"
-      },
-      "Type": "AWS::EC2::NetworkAclEntry"
-    },
-    "internetgateway": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Business",
-            "Value": "LAB"
-          },
-          {
-            "Key": "Service",
-            "Value": "ecs-app"
-          },
-          {
-            "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
-          },
-          {
-            "Key": "Name",
-            "Value": "dev-a-igw"
-          }
-        ]
-      },
-      "Type": "AWS::EC2::InternetGateway"
-    },
-    "networkacl": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Business",
-            "Value": "LAB"
-          },
-          {
-            "Key": "Service",
-            "Value": "ecs-app"
-          },
-          {
-            "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
-          },
-          {
-            "Key": "Name",
-            "Value": "dev-a-network-acl"
-          }
-        ],
-        "VpcId": {
-          "Ref": "vpc"
-        }
-      },
-      "Type": "AWS::EC2::NetworkAcl"
-    },
     "networkloadbalancer": {
-      "DependsOn": "internetgateway",
       "Properties": {
         "Scheme": "internet-facing",
         "Subnets": [
           {
-            "Ref": "subnetuswest2a"
+            "Fn::ImportValue": "dev-a-ecs-app-privatesubnet1-ID"
+          },
+          {
+            "Fn::ImportValue": "dev-a-ecs-app-privatesubnet2-ID"
+          },
+          {
+            "Fn::ImportValue": "dev-a-ecs-app-privatesubnet3-ID"
           }
         ],
         "Tags": [
@@ -420,62 +376,10 @@
           }
         ],
         "VpcId": {
-          "Ref": "vpc"
+          "Fn::ImportValue": "dev-a-ecs-app-vpc-id"
         }
       },
       "Type": "AWS::EC2::SecurityGroup"
-    },
-    "outboundacl": {
-      "Properties": {
-        "CidrBlock": "0.0.0.0/0",
-        "Egress": true,
-        "NetworkAclId": {
-          "Ref": "networkacl"
-        },
-        "Protocol": "-1",
-        "RuleAction": "allow",
-        "RuleNumber": "100"
-      },
-      "Type": "AWS::EC2::NetworkAclEntry"
-    },
-    "route": {
-      "DependsOn": "gatewayattachment",
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {
-          "Ref": "internetgateway"
-        },
-        "RouteTableId": {
-          "Ref": "routetable"
-        }
-      },
-      "Type": "AWS::EC2::Route"
-    },
-    "routetable": {
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Business",
-            "Value": "LAB"
-          },
-          {
-            "Key": "Service",
-            "Value": "ecs-app"
-          },
-          {
-            "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
-          },
-          {
-            "Key": "Name",
-            "Value": "dev-a-rtb"
-          }
-        ],
-        "VpcId": {
-          "Ref": "vpc"
-        }
-      },
-      "Type": "AWS::EC2::RouteTable"
     },
     "service": {
       "Properties": {
@@ -517,7 +421,13 @@
             ],
             "Subnets": [
               {
-                "Ref": "subnetuswest2a"
+                "Fn::ImportValue": "dev-a-ecs-app-privatesubnet1-ID"
+              },
+              {
+                "Fn::ImportValue": "dev-a-ecs-app-privatesubnet2-ID"
+              },
+              {
+                "Fn::ImportValue": "dev-a-ecs-app-privatesubnet3-ID"
               }
             ]
           }
@@ -549,57 +459,6 @@
       },
       "Type": "AWS::ECS::Service"
     },
-    "subnetuswest2a": {
-      "Properties": {
-        "AvailabilityZone": "us-west-2a",
-        "CidrBlock": "10.175.0.0/24",
-        "MapPublicIpOnLaunch": true,
-        "Tags": [
-          {
-            "Key": "Business",
-            "Value": "LAB"
-          },
-          {
-            "Key": "Service",
-            "Value": "ecs-app"
-          },
-          {
-            "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
-          },
-          {
-            "Key": "Name",
-            "Value": "dev-a-subnet-us-west-2a"
-          }
-        ],
-        "VpcId": {
-          "Ref": "vpc"
-        }
-      },
-      "Type": "AWS::EC2::Subnet"
-    },
-    "subnetuswest2anetworkacl": {
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "networkacl"
-        },
-        "SubnetId": {
-          "Ref": "subnetuswest2a"
-        }
-      },
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
-    },
-    "subnetuswest2aroute": {
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "routetable"
-        },
-        "SubnetId": {
-          "Ref": "subnetuswest2a"
-        }
-      },
-      "Type": "AWS::EC2::SubnetRouteTableAssociation"
-    },
     "tcp80listener": {
       "Properties": {
         "DefaultActions": [
@@ -625,7 +484,7 @@
         "Protocol": "TCP",
         "TargetType": "ip",
         "VpcId": {
-          "Ref": "vpc"
+          "Fn::ImportValue": "dev-a-ecs-app-vpc-id"
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -657,7 +516,7 @@
         "Protocol": "UDP",
         "TargetType": "ip",
         "VpcId": {
-          "Ref": "vpc"
+          "Fn::ImportValue": "dev-a-ecs-app-vpc-id"
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -689,7 +548,7 @@
         "Protocol": "UDP",
         "TargetType": "ip",
         "VpcId": {
-          "Ref": "vpc"
+          "Fn::ImportValue": "dev-a-ecs-app-vpc-id"
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -721,35 +580,10 @@
         "Protocol": "UDP",
         "TargetType": "ip",
         "VpcId": {
-          "Ref": "vpc"
+          "Fn::ImportValue": "dev-a-ecs-app-vpc-id"
         }
       },
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
-    },
-    "vpc": {
-      "Properties": {
-        "CidrBlock": "10.175.0.0/24",
-        "EnableDnsHostnames": true,
-        "Tags": [
-          {
-            "Key": "Business",
-            "Value": "LAB"
-          },
-          {
-            "Key": "Service",
-            "Value": "ecs-app"
-          },
-          {
-            "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
-          },
-          {
-            "Key": "Name",
-            "Value": "dev-a-vpc"
-          }
-        ]
-      },
-      "Type": "AWS::EC2::VPC"
     }
   }
 }

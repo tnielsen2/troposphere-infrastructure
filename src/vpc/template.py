@@ -10,7 +10,7 @@ from ..common.file_utils import save_to_file
 from ..common.vpc import availability_zones, vpc_settings, add_cidr_mapping
 
 #### Generation vars
-stack_regions = ["us-west-2"]
+stack_regions = ["us-west-2", "us-east-2"]
 stack_environments = ["dev-a"]
 
 # Configuration Variables

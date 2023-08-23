@@ -8,7 +8,7 @@ import troposphere.ecs as ecs
 import troposphere.efs as efs
 import troposphere.elasticloadbalancingv2 as elb
 from troposphere.route53 import RecordSetType, AliasTarget
-from troposphere import Template, Ref, Output, GetAtt
+from troposphere import ImportValue, Template, Ref, GetAtt
 from troposphere.s3 import *
 
 #### Generation vars
@@ -94,6 +94,12 @@ app_group_ansi = app_group_l.replace("-", "")
 
 
 def create_cfn_template(environment, region):
+    vpc_id = ImportValue(f"{environment}-{app_group_l}-vpc-id")
+    subnets = [
+        ImportValue(f"{environment}-{app_group_l}-privatesubnet1-ID"),
+        ImportValue(f"{environment}-{app_group_l}-privatesubnet2-ID"),
+        ImportValue(f"{environment}-{app_group_l}-privatesubnet3-ID"),
+    ]
     az = f"{region}a"
     # Pull In Tags
     default_tags = (
@@ -120,125 +126,13 @@ def create_cfn_template(environment, region):
         }
     )
 
-    #### Start VPC resources
-    vpc = t.add_resource(
-        ec2.VPC(
-            "vpc",
-            CidrBlock=cidr,
-            EnableDnsHostnames="true",
-            Tags=default_tags + Tags(Name=f"{environment}-vpc"),
-        )
-    )
-
-    internetgateway = t.add_resource(
-        ec2.InternetGateway(
-            "internetgateway",
-            Tags=default_tags + Tags(Name=f"{environment}-igw"),
-        )
-    )
-
-    gatewayattachment = t.add_resource(
-        ec2.VPCGatewayAttachment(
-            "gatewayattachment",
-            VpcId=Ref(vpc),
-            InternetGatewayId=Ref(internetgateway),
-        )
-    )
-
-    routetable = t.add_resource(
-        ec2.RouteTable(
-            "routetable",
-            VpcId=Ref(vpc),
-            Tags=default_tags + Tags(Name=f"{environment}-rtb"),
-        )
-    )
-
-    route = t.add_resource(
-        ec2.Route(
-            "route",
-            DependsOn="gatewayattachment",
-            GatewayId=Ref(internetgateway),
-            DestinationCidrBlock="0.0.0.0/0",
-            RouteTableId=Ref(routetable),
-        )
-    )
-
-    networkacl = t.add_resource(
-        ec2.NetworkAcl(
-            "networkacl",
-            VpcId=Ref(vpc),
-            Tags=default_tags + Tags(Name=f"{environment}-network-acl"),
-        )
-    )
-
-    inboundacl = t.add_resource(
-        ec2.NetworkAclEntry(
-            "inboundacl",
-            NetworkAclId=Ref(networkacl),
-            RuleNumber="100",
-            Protocol="-1",
-            Egress="false",
-            RuleAction="allow",
-            CidrBlock="0.0.0.0/0",
-        )
-    )
-
-    outboundacl = t.add_resource(
-        ec2.NetworkAclEntry(
-            "outboundacl",
-            NetworkAclId=Ref(networkacl),
-            RuleNumber="100",
-            Protocol="-1",
-            Egress="true",
-            RuleAction="allow",
-            CidrBlock="0.0.0.0/0",
-        )
-    )
-
-    subnet = t.add_resource(
-        ec2.Subnet(
-            f"subnet{az.replace('-', '')}",
-            CidrBlock=cidr,
-            VpcId=Ref(vpc),
-            MapPublicIpOnLaunch="true",
-            AvailabilityZone=az,
-            Tags=default_tags + Tags(Name=f"{environment}-subnet-{az}"),
-            # DependsOn="vpc",
-        )
-    )
-
-    subnet_route = t.add_resource(
-        ec2.SubnetRouteTableAssociation(
-            f"subnet{az.replace('-', '')}route",
-            SubnetId=Ref(subnet),
-            RouteTableId=Ref(routetable),
-        )
-    )
-    subnet_acl = t.add_resource(
-        ec2.SubnetNetworkAclAssociation(
-            f"subnet{az.replace('-', '')}networkacl",
-            SubnetId=Ref(subnet),
-            NetworkAclId=Ref(networkacl),
-        )
-    )
-    t.add_output(
-        [
-            Output(
-                f"subnet{az.replace('-', '')}",
-                Description=f"{environment} Subnet {az} ID",
-                Value=Ref(subnet),
-            )
-        ]
-    )
-    #### End VPC resources
-
     #### Start Security Group Resources
     # Provision the Public Security Group
     nlbPublicSecurityGroup = t.add_resource(
         ec2.SecurityGroup(
             "nlbPublicSecurityGroup",
             GroupDescription=f"{environment}: {app_group} Public Security Group",
-            VpcId=Ref(vpc),
+            VpcId=vpc_id,
             SecurityGroupIngress=sg_ingress_rules,
             Tags=default_tags + Tags(Name=f"{environment}-{app_group_l}-sg"),
         )
@@ -262,15 +156,16 @@ def create_cfn_template(environment, region):
     efsfilesystem = t.add_resource(
         efs.FileSystem("efsfilesystem", FileSystemTags=default_tags)
     )
-
-    efsmounttarget = t.add_resource(
-        efs.MountTarget(
-            f"{app_group_ansi}efsMountTarget{az.replace('-', '')}",
-            FileSystemId=Ref(efsfilesystem),
-            SecurityGroups=[Ref(nlbPublicSecurityGroup)],
-            SubnetId=Ref(subnet),
+    for efs_mount_subnet in subnets:
+        index = str(subnets.index(efs_mount_subnet))
+        efsmounttarget = t.add_resource(
+            efs.MountTarget(
+                f"{app_group_ansi}efsMountTarget{index}",
+                FileSystemId=Ref(efsfilesystem),
+                SecurityGroups=[Ref(nlbPublicSecurityGroup)],
+                SubnetId=efs_mount_subnet,
+            )
         )
-    )
 
     #### End EFS resources
 
@@ -280,9 +175,8 @@ def create_cfn_template(environment, region):
             "networkloadbalancer",
             Type="network",
             Scheme="internet-facing",
-            Subnets=[Ref(subnet)],
+            Subnets=subnets,
             Tags=default_tags + Tags(Component="Load-Balancer"),
-            DependsOn="internetgateway",
         )
     )
 
@@ -295,7 +189,7 @@ def create_cfn_template(environment, region):
             HealthCheckPort="80",
             HealthCheckProtocol="TCP",
             Protocol="UDP",
-            VpcId=Ref(vpc),
+            VpcId=vpc_id,
             DependsOn="networkloadbalancer",
         )
     )
@@ -320,7 +214,7 @@ def create_cfn_template(environment, region):
             Protocol="UDP",
             HealthCheckPort="80",
             HealthCheckProtocol="TCP",
-            VpcId=Ref(vpc),
+            VpcId=vpc_id,
             DependsOn="networkloadbalancer",
         )
     )
@@ -345,7 +239,7 @@ def create_cfn_template(environment, region):
             Protocol="UDP",
             HealthCheckPort="80",
             HealthCheckProtocol="TCP",
-            VpcId=Ref(vpc),
+            VpcId=vpc_id,
             DependsOn="networkloadbalancer",
         )
     )
@@ -368,7 +262,7 @@ def create_cfn_template(environment, region):
             Port=80,
             TargetType="ip",
             Protocol="TCP",
-            VpcId=Ref(vpc),
+            VpcId=vpc_id,
             DependsOn="networkloadbalancer",
         )
     )
@@ -468,7 +362,7 @@ def create_cfn_template(environment, region):
             NetworkConfiguration=ecs.NetworkConfiguration(
                 AwsvpcConfiguration=ecs.AwsvpcConfiguration(
                     AssignPublicIp="ENABLED",
-                    Subnets=[Ref(subnet)],
+                    Subnets=subnets,
                     SecurityGroups=[Ref(nlbPublicSecurityGroup)],
                 )
             ),
