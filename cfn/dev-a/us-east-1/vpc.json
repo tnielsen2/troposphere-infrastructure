@@ -1,0 +1,462 @@
+{
+  "Description": "dev-a: LAB - VPC Infrastructure",
+  "Mappings": {
+    "CidrAllocations": {
+      "us-east-1": {
+        "publicsubnet1": "10.0.16.0/23",
+        "publicsubnet2": "10.0.18.0/23",
+        "publicsubnet3": "10.0.20.0/23",
+        "publicsubnet4": "10.0.22.0/23",
+        "vpc": "10.0.16.0/21"
+      }
+    }
+  },
+  "Metadata": {
+    "cfn-lint": {
+      "config": {
+        "ignore_checks": [
+          "E11001",
+          "W11001",
+          "W10001",
+          "W10002"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "Subnet1": {
+      "Description": "dev-a Subnet 1 ID",
+      "Export": {
+        "Name": "dev-a-vpc-publicsubnet1-ID"
+      },
+      "Value": {
+        "Ref": "subnet1"
+      }
+    },
+    "Subnet2": {
+      "Description": "dev-a Subnet 2 ID",
+      "Export": {
+        "Name": "dev-a-vpc-publicsubnet2-ID"
+      },
+      "Value": {
+        "Ref": "subnet2"
+      }
+    },
+    "Subnet3": {
+      "Description": "dev-a Subnet 3 ID",
+      "Export": {
+        "Name": "dev-a-vpc-publicsubnet3-ID"
+      },
+      "Value": {
+        "Ref": "subnet3"
+      }
+    },
+    "VPCID": {
+      "Description": "dev-a VPC ID",
+      "Export": {
+        "Name": "dev-a-vpc-vpc-id"
+      },
+      "Value": {
+        "Ref": "VPC"
+      }
+    },
+    "defaultSecurityGroupIdOutput": {
+      "Description": "dev-a core default security group ID",
+      "Export": {
+        "Name": "dev-a-core-defaultSecurityGroup-ID"
+      },
+      "Value": {
+        "Ref": "defaultSecurityGroup"
+      }
+    }
+  },
+  "Resources": {
+    "AttachGateway": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment"
+    },
+    "InboundNetworkAcl": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "InternetGateway": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-igw"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "NetworkAcl": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-network-acl"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAcl"
+    },
+    "OutboundNetworkAcl": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "Route": {
+      "DependsOn": "AttachGateway",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "RouteTable": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-public-rtb"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
+    "S3VPCEndpoint": {
+      "Properties": {
+        "RouteTableIds": [
+          {
+            "Ref": "RouteTable"
+          }
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.s3",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
+    "VPC": {
+      "Properties": {
+        "CidrBlock": "10.0.16.0/21",
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-vpc"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::VPC"
+    },
+    "defaultSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "dev-a ICMP security group",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "-1",
+            "IpProtocol": "icmp",
+            "ToPort": "-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "subnet1": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-1",
+            "publicsubnet1"
+          ]
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-subnet-1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "subnet1networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "subnet1"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "subnet1route": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "SubnetId": {
+          "Ref": "subnet1"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "subnet2": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            2,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-1",
+            "publicsubnet2"
+          ]
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-subnet-2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "subnet2networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "subnet2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "subnet2route": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "SubnetId": {
+          "Ref": "subnet2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "subnet3": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            3,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-1",
+            "publicsubnet3"
+          ]
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-1-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-subnet-3"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "subnet3networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "subnet3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "subnet3route": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "SubnetId": {
+          "Ref": "subnet3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    }
+  }
+}

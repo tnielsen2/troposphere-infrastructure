@@ -1,0 +1,900 @@
+{
+  "Description": "dev-a: LAB - VPC Infrastructure",
+  "Mappings": {
+    "CidrAllocations": {
+      "us-east-2": {
+        "privatesubnet1": "10.0.12.0/24",
+        "privatesubnet2": "10.0.13.0/24",
+        "privatesubnet3": "10.0.14.0/24",
+        "privatesubnet4": "10.0.15.0/24",
+        "publicsubnet1": "10.0.8.0/24",
+        "publicsubnet2": "10.0.9.0/24",
+        "publicsubnet3": "10.0.10.0/24",
+        "publicsubnet4": "10.0.11.0/24",
+        "vpc": "10.0.8.0/21"
+      }
+    }
+  },
+  "Metadata": {
+    "cfn-lint": {
+      "config": {
+        "ignore_checks": [
+          "E11001",
+          "W11001",
+          "W10001",
+          "W10002"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "PrivateSubnet1": {
+      "Description": "dev-a Private Subnet 1 ID",
+      "Export": {
+        "Name": "dev-a-vpc-privatesubnet1-ID"
+      },
+      "Value": {
+        "Ref": "privatesubnet1"
+      }
+    },
+    "PrivateSubnet2": {
+      "Description": "dev-a Private Subnet 2 ID",
+      "Export": {
+        "Name": "dev-a-vpc-privatesubnet2-ID"
+      },
+      "Value": {
+        "Ref": "privatesubnet2"
+      }
+    },
+    "PrivateSubnet3": {
+      "Description": "dev-a Private Subnet 3 ID",
+      "Export": {
+        "Name": "dev-a-vpc-privatesubnet3-ID"
+      },
+      "Value": {
+        "Ref": "privatesubnet3"
+      }
+    },
+    "PublicSubnet1": {
+      "Description": "dev-a Public Subnet 1 ID",
+      "Export": {
+        "Name": "dev-a-vpc-publicsubnet1-ID"
+      },
+      "Value": {
+        "Ref": "publicsubnet1"
+      }
+    },
+    "PublicSubnet2": {
+      "Description": "dev-a Public Subnet 2 ID",
+      "Export": {
+        "Name": "dev-a-vpc-publicsubnet2-ID"
+      },
+      "Value": {
+        "Ref": "publicsubnet2"
+      }
+    },
+    "PublicSubnet3": {
+      "Description": "dev-a Public Subnet 3 ID",
+      "Export": {
+        "Name": "dev-a-vpc-publicsubnet3-ID"
+      },
+      "Value": {
+        "Ref": "publicsubnet3"
+      }
+    },
+    "VPCID": {
+      "Description": "dev-a VPC ID",
+      "Export": {
+        "Name": "dev-a-vpc-vpc-id"
+      },
+      "Value": {
+        "Ref": "VPC"
+      }
+    },
+    "defaultSecurityGroupIdOutput": {
+      "Description": "dev-a core default security group ID",
+      "Export": {
+        "Name": "dev-a-core-defaultSecurityGroup-ID"
+      },
+      "Value": {
+        "Ref": "defaultSecurityGroup"
+      }
+    }
+  },
+  "Resources": {
+    "AttachGateway": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment"
+    },
+    "InboundNetworkAcl": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "InternetGateway": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-igw"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "NetworkAcl": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-network-acl"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAcl"
+    },
+    "OutboundNetworkAcl": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100"
+      },
+      "Type": "AWS::EC2::NetworkAclEntry"
+    },
+    "Route": {
+      "DependsOn": "AttachGateway",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        },
+        "RouteTableId": {
+          "Ref": "publicroutetable"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "S3VPCEndpoint": {
+      "Properties": {
+        "RouteTableIds": [],
+        "ServiceName": "com.amazonaws.us-east-2.s3",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::VPCEndpoint"
+    },
+    "VPC": {
+      "Properties": {
+        "CidrBlock": "10.0.8.0/21",
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-vpc"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::VPC"
+    },
+    "defaultSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "dev-a ICMP security group",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "10.0.0.0/8",
+            "FromPort": "-1",
+            "IpProtocol": "icmp",
+            "ToPort": "-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "natgateway1": {
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "natgatewayeip1",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet1"
+        },
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-natgw1"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::NatGateway"
+    },
+    "natgateway2": {
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "natgatewayeip2",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet2"
+        },
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-natgw2"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::NatGateway"
+    },
+    "natgateway3": {
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "natgatewayeip3",
+            "AllocationId"
+          ]
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet3"
+        },
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-natgw3"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::NatGateway"
+    },
+    "natgatewayeip1": {
+      "Type": "AWS::EC2::EIP"
+    },
+    "natgatewayeip2": {
+      "Type": "AWS::EC2::EIP"
+    },
+    "natgatewayeip3": {
+      "Type": "AWS::EC2::EIP"
+    },
+    "privatesubnet1": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-2",
+            "privatesubnet1"
+          ]
+        },
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-private-subnet-1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "privatesubnet1networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "privatesubnet1"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "privatesubnet1route": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "natgateway1"
+        },
+        "RouteTableId": {
+          "Ref": "privatesubnet1routetable"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "privatesubnet1routeassociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "privatesubnet1routetable"
+        },
+        "SubnetId": {
+          "Ref": "privatesubnet1"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "privatesubnet1routetable": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-private1-rtb"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
+    "privatesubnet2": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-2",
+            "privatesubnet2"
+          ]
+        },
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-private-subnet-2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "privatesubnet2networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "privatesubnet2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "privatesubnet2route": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "natgateway2"
+        },
+        "RouteTableId": {
+          "Ref": "privatesubnet2routetable"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "privatesubnet2routeassociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "privatesubnet2routetable"
+        },
+        "SubnetId": {
+          "Ref": "privatesubnet2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "privatesubnet2routetable": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-private2-rtb"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
+    "privatesubnet3": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            2,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-2",
+            "privatesubnet3"
+          ]
+        },
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-private-subnet-3"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "privatesubnet3networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "privatesubnet3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "privatesubnet3route": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "natgateway3"
+        },
+        "RouteTableId": {
+          "Ref": "privatesubnet3routetable"
+        }
+      },
+      "Type": "AWS::EC2::Route"
+    },
+    "privatesubnet3routeassociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "privatesubnet3routetable"
+        },
+        "SubnetId": {
+          "Ref": "privatesubnet3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "privatesubnet3routetable": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-private3-rtb"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
+    "publicroutetable": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-public-rtb"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::RouteTable"
+    },
+    "publicsubnet1": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-2",
+            "publicsubnet1"
+          ]
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-public-subnet-1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "publicsubnet1networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet1"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "publicsubnet1routeassociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "publicroutetable"
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet1"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "publicsubnet2": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-2",
+            "publicsubnet2"
+          ]
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-public-subnet-2"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "publicsubnet2networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "publicsubnet2routeassociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "publicroutetable"
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet2"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    },
+    "publicsubnet3": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            2,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "CidrAllocations",
+            "us-east-2",
+            "publicsubnet3"
+          ]
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Business",
+            "Value": "LAB"
+          },
+          {
+            "Key": "Service",
+            "Value": "vpc"
+          },
+          {
+            "Key": "ExtendedName",
+            "Value": "dev-a-us-east-2-vpc"
+          },
+          {
+            "Key": "Name",
+            "Value": "dev-a-public-subnet-3"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::Subnet"
+    },
+    "publicsubnet3networkacl": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NetworkAcl"
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation"
+    },
+    "publicsubnet3routeassociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "publicroutetable"
+        },
+        "SubnetId": {
+          "Ref": "publicsubnet3"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation"
+    }
+  }
+}
