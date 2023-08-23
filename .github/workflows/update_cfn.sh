@@ -31,9 +31,18 @@ while IFS= read -r JSON_FILE; do
 
   # Debug output
   echo "Executing: aws cloudformation deploy --template-file $TEMPLATE_FILE --stack-name $ENVIRONMENT-$STACK_NAME --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
-
+  STACK_NAME="$ENVIRONMENT-$STACK_NAME"
   # Execute the AWS CloudFormation deploy command in the background, redirecting output to $OUTPUT_LOG and both stdout and stderr to $ERROR_LOG
-  aws cloudformation deploy --template-file "$TEMPLATE_FILE" --stack-name "$ENVIRONMENT-$STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND > "$OUTPUT_LOG" 2>> "$ERROR_LOG" &
+  aws cloudformation deploy --template-file "$TEMPLATE_FILE" --stack-name "$STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND > "$OUTPUT_LOG" 2>> "$ERROR_LOG" || {
+    # If the deployment command fails, execute additional commands
+    echo "Echoing failed stack deploy for $STACK_NAME"
+    aws cloudformation describe-stack-events --stack-name "$STACK_NAME" --region "$AWS_REGION"
+    # You can add more commands here if needed
+    # ...
+
+    # Exit the script with a non-zero status
+    exit 1
+  } &
 
   # Store the PID of the background task
   PIDS+=($!)
@@ -52,14 +61,6 @@ echo "All background tasks have finished."
 echo "==== Output of All Executions ===="
 for LOG_FILE in *-*.out.log; do
   echo "Output of $LOG_FILE:"
-  cat "$LOG_FILE"
-  echo "================================"
-done
-
-# Concatenate and display the error output of all executions
-echo "==== Error Output of All Executions ===="
-for LOG_FILE in *-*.err.log; do
-  echo "Error output of $LOG_FILE:"
   cat "$LOG_FILE"
   echo "================================"
 done
