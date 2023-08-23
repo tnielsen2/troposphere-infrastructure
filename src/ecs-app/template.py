@@ -282,7 +282,7 @@ def create_cfn_template(environment, region):
             Scheme="internet-facing",
             Subnets=[Ref(subnet)],
             Tags=default_tags + Tags(Component="Load-Balancer"),
-            # DependsOn=f"subnet{az.replace('-', '')}",
+            DependsOn="internetgateway",
         )
     )
 
