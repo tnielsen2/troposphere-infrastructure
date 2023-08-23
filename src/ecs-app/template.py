@@ -12,8 +12,6 @@ from troposphere import Template, Ref, Output, GetAtt
 from troposphere.s3 import *
 
 #### Generation vars
-stack_regions = ["us-west-2", "us-east-1", "us-east-2"]
-stack_environments = ["dev-a"]
 
 #### Stack vars
 # Variable for Route53 resource creation https://docs.aws.amazon.com/general/latest/gr/elb.html
@@ -495,22 +493,6 @@ def create_cfn_template(environment, region):
     )
 
     #### End ECS resources
-
-    #### Start Route53 resources
-    dnsRecord = t.add_resource(
-        RecordSetType(
-            "dnsRecord",
-            HostedZoneName=f"{app_domain}.",
-            Comment=f"{environment}-{region}-{app_group_l} domain record",
-            Name=f"vh.{app_domain}",
-            Type="A",
-            AliasTarget=AliasTarget(
-                HostedZoneId=alb_hosted_zone_ids[region],
-                DNSName=GetAtt("networkloadbalancer", "DNSName"),
-            ),
-        )
-    )
-    #### End Route53 resources
 
     # Load the Troposphere object into a JSON object
     json_data = json.loads(t.to_json())

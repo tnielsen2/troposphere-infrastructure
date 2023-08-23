@@ -225,24 +225,6 @@
       },
       "Type": "AWS::ECS::Cluster"
     },
-    "dnsRecord": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "networkloadbalancer",
-              "DNSName"
-            ]
-          },
-          "HostedZoneId": "ZLMOA37VPKANP"
-        },
-        "Comment": "dev-a-us-east-2-ecs-app domain record",
-        "HostedZoneName": "pxg-sandbox-sre.yamww.cloud.",
-        "Name": "vh.pxg-sandbox-sre.yamww.cloud",
-        "Type": "A"
-      },
-      "Type": "AWS::Route53::RecordSet"
-    },
     "ecsappefsMountTargetuseast2a": {
       "Properties": {
         "FileSystemId": {

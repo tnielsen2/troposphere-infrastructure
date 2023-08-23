@@ -1,5 +1,5 @@
 {
-  "Description": "dev-a: LAB - ecs-app Infrastructure",
+  "Description": "uat-b: LAB - ecs-app Infrastructure",
   "Metadata": {
     "cfn-lint": {
       "config": {
@@ -12,7 +12,7 @@
   },
   "Outputs": {
     "subnetuswest2a": {
-      "Description": "dev-a Subnet us-west-2a ID",
+      "Description": "uat-b Subnet us-west-2a ID",
       "Value": {
         "Ref": "subnetuswest2a"
       }
@@ -141,7 +141,7 @@
                 "SourceVolume": "data-vol"
               }
             ],
-            "Name": "dev-a-ecs-app",
+            "Name": "uat-b-ecs-app",
             "PortMappings": [
               {
                 "ContainerPort": 2456,
@@ -163,7 +163,7 @@
           }
         ],
         "Cpu": "2048",
-        "Family": "dev-a-ecs-app",
+        "Family": "uat-b-ecs-app",
         "Memory": "4096",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
@@ -180,7 +180,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -203,7 +203,7 @@
     },
     "cluster": {
       "Properties": {
-        "ClusterName": "dev-a-ecs-app-cluster",
+        "ClusterName": "uat-b-ecs-app-cluster",
         "Tags": [
           {
             "Key": "Business",
@@ -215,7 +215,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -254,7 +254,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           }
         ]
       },
@@ -297,11 +297,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "dev-a-igw"
+            "Value": "uat-b-igw"
           }
         ]
       },
@@ -320,11 +320,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "dev-a-network-acl"
+            "Value": "uat-b-network-acl"
           }
         ],
         "VpcId": {
@@ -353,7 +353,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -366,7 +366,7 @@
     },
     "nlbPublicSecurityGroup": {
       "Properties": {
-        "GroupDescription": "dev-a: ecs-app Public Security Group",
+        "GroupDescription": "uat-b: ecs-app Public Security Group",
         "SecurityGroupIngress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -394,11 +394,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "dev-a-ecs-app-sg"
+            "Value": "uat-b-ecs-app-sg"
           }
         ],
         "VpcId": {
@@ -446,11 +446,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "dev-a-rtb"
+            "Value": "uat-b-rtb"
           }
         ],
         "VpcId": {
@@ -468,21 +468,21 @@
         "LaunchType": "FARGATE",
         "LoadBalancers": [
           {
-            "ContainerName": "dev-a-ecs-app",
+            "ContainerName": "uat-b-ecs-app",
             "ContainerPort": 2456,
             "TargetGroupArn": {
               "Ref": "udp2456tg"
             }
           },
           {
-            "ContainerName": "dev-a-ecs-app",
+            "ContainerName": "uat-b-ecs-app",
             "ContainerPort": 2457,
             "TargetGroupArn": {
               "Ref": "udp2457tg"
             }
           },
           {
-            "ContainerName": "dev-a-ecs-app",
+            "ContainerName": "uat-b-ecs-app",
             "ContainerPort": 2458,
             "TargetGroupArn": {
               "Ref": "udp2458tg"
@@ -518,7 +518,7 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Component",
@@ -547,11 +547,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "dev-a-subnet-us-west-2a"
+            "Value": "uat-b-subnet-us-west-2a"
           }
         ],
         "VpcId": {
@@ -723,11 +723,11 @@
           },
           {
             "Key": "ExtendedName",
-            "Value": "dev-a-us-west-2-ecs-app"
+            "Value": "uat-b-us-west-2-ecs-app"
           },
           {
             "Key": "Name",
-            "Value": "dev-a-vpc"
+            "Value": "uat-b-vpc"
           }
         ]
       },
