@@ -28,80 +28,80 @@ from troposphere.s3 import *
 
 from ..common.file_utils import save_to_file
 
-stack_regions = ["us-east-1"]
-stack_environments = ["dev-a"]
+stack_regions = ['us-east-1']
+stack_environments = ['dev-a']
 
-app_group = "s3-static-site"
+app_group = 's3-static-site'
 app_group_l = app_group.lower()
-app_group_ansi = app_group_l.replace("-", "")
-cfront_zone_id = "Z2FDTNDATAQYW2"
+app_group_ansi = app_group_l.replace('-', '')
+cfront_zone_id = 'Z2FDTNDATAQYW2'
 
 # Create Default Tags
-DefaultTags = Tags(Business="YIT") + Tags(Lab="True")
+DefaultTags = Tags(Business='YIT') + Tags(Lab='True')
 
 # Set template variables
-stage_name = "v1"
+stage_name = 'v1'
 
 ##### Dynamo Variables
 readunits = 5
 writeunits = 5
 # The name of the table
-hashkeyname = "counters"
+hashkeyname = 'counters'
 # Table data type (N is for number/integer)
-hashkeytype = "N"
+hashkeytype = 'N'
 
 
 def create_cfn_template(environment, region):
-    dns_domain = "tnielsen-example.com"
+    dns_domain = 'pxg-sandbox-sre.yamww.cloud'
     # Prepare Template
     t = Template()
-    t.set_description(f"YIT: {app_group}")
+    t.set_description(f'{app_group}')
 
     ################################################################################################################
     # CloudFront and S3 for static hosting
     ################################################################################################################
 
     redirect_domains = {
-        f"resume.{dns_domain}": {
-            "zone_name": f"{dns_domain}",
-            "redirect_target": f"resume.{dns_domain}",
-            "alt_sub": "www",
+        f'static.{dns_domain}': {
+            'zone_name': f'{dns_domain}',
+            'redirect_target': f'static.{dns_domain}',
+            'alt_sub': 'www',
         },
     }
 
     for src_domain, domain_info in redirect_domains.items():
-        src_domain_ansi = src_domain.replace(".", "0")
-        src_domain_ansi = src_domain_ansi.replace("-", "")
-        src_domain_ansi = src_domain_ansi.replace("_", "")
-        bucketResourceName = f"{app_group_ansi}0{src_domain_ansi}0Bucket"
+        src_domain_ansi = src_domain.replace('.', '0')
+        src_domain_ansi = src_domain_ansi.replace('-', '')
+        src_domain_ansi = src_domain_ansi.replace('_', '')
+        bucketResourceName = f'{app_group_ansi}0{src_domain_ansi}0Bucket'
 
         redirectBucket = t.add_resource(
             Bucket(
                 bucketResourceName,
-                BucketName=f"{src_domain}",
-                Tags=DefaultTags + Tags(Component=f"{src_domain}"),
+                BucketName=f'{src_domain}',
+                Tags=DefaultTags + Tags(Component=f'{src_domain}'),
                 WebsiteConfiguration=(
-                    s3.WebsiteConfiguration(IndexDocument="index.html")
+                    s3.WebsiteConfiguration(IndexDocument='index.html')
                 ),
             )
         )
 
         # Set some cdn based values and defaults
-        dns_domain = domain_info["zone_name"]
-        cdn_domain = f"{src_domain}"
+        dns_domain = domain_info['zone_name']
+        cdn_domain = f'{src_domain}'
         max_ttl = (31536000,)
         default_ttl = (86400,)
 
         # If an alt_sub domain is not specified use empty string
-        if domain_info["alt_sub"] != "":
+        if domain_info['alt_sub'] != '':
             alternate_name = f"{domain_info['alt_sub']}.{src_domain}"
         else:
-            alternate_name = ""
+            alternate_name = ''
 
         # Provision certificate for CDN
         cdnCertificate = t.add_resource(
             Certificate(
-                f"cdnCertificate{src_domain_ansi}",
+                f'cdnCertificate{src_domain_ansi}',
                 DomainName=cdn_domain,
                 DependsOn=redirectBucket,
                 SubjectAlternativeNames=[alternate_name],
@@ -110,49 +110,51 @@ def create_cfn_template(environment, region):
                         DomainName=cdn_domain, ValidationDomain=dns_domain
                     )
                 ],
-                ValidationMethod="DNS",
-                Tags=DefaultTags + Tags(Name=f"{environment}-{app_group_l}"),
+                ValidationMethod='DNS',
+                Tags=DefaultTags + Tags(Name=f'{environment}-{app_group_l}'),
             )
         )
 
         # Provision the CDN Origin
         cdnOrigin = cf.Origin(
-            Id=f"{environment}-{app_group_l}-{src_domain}",
-            DomainName=Select(1, Split("//", GetAtt(redirectBucket, "WebsiteURL"))),
+            Id=f'{environment}-{app_group_l}-{src_domain}',
+            DomainName=Select(
+                1, Split('//', GetAtt(redirectBucket, 'WebsiteURL'))
+            ),
             CustomOriginConfig=cf.CustomOriginConfig(
                 HTTPPort=80,
                 HTTPSPort=443,
-                OriginProtocolPolicy="http-only",
-                OriginSSLProtocols=["TLSv1.2"],
+                OriginProtocolPolicy='http-only',
+                OriginSSLProtocols=['TLSv1.2'],
             ),
         )
 
         # Provision the CDN Distribution
         cdnDistribution = t.add_resource(
             cf.Distribution(
-                f"cdnDistribution{src_domain_ansi}",
+                f'cdnDistribution{src_domain_ansi}',
                 # DependsOn=f"cdnCertificate{src_domain_ansi}",
                 DistributionConfig=cf.DistributionConfig(
-                    Comment=f"{environment} - {cdn_domain}",
+                    Comment=f'{environment} - {cdn_domain}',
                     Enabled=True,
-                    PriceClass="PriceClass_All",
-                    HttpVersion="http2",
+                    PriceClass='PriceClass_All',
+                    HttpVersion='http2',
                     Origins=[
                         cdnOrigin,
                     ],
                     Aliases=[cdn_domain, alternate_name],
                     ViewerCertificate=cf.ViewerCertificate(
                         AcmCertificateArn=Ref(cdnCertificate),
-                        SslSupportMethod="sni-only",
-                        MinimumProtocolVersion="TLSv1.2_2018",
+                        SslSupportMethod='sni-only',
+                        MinimumProtocolVersion='TLSv1.2_2018',
                     ),
                     DefaultCacheBehavior=cf.DefaultCacheBehavior(
-                        AllowedMethods=["GET", "HEAD", "OPTIONS"],
-                        CachedMethods=["GET", "HEAD"],
-                        ViewerProtocolPolicy="redirect-to-https",
-                        TargetOriginId=f"{environment}-{app_group_l}-{src_domain}",
+                        AllowedMethods=['GET', 'HEAD', 'OPTIONS'],
+                        CachedMethods=['GET', 'HEAD'],
+                        ViewerProtocolPolicy='redirect-to-https',
+                        TargetOriginId=f'{environment}-{app_group_l}-{src_domain}',
                         ForwardedValues=cf.ForwardedValues(
-                            Headers=["Accept-Encoding"],
+                            Headers=['Accept-Encoding'],
                             QueryString=True,
                         ),
                         MinTTL=0,
@@ -163,32 +165,32 @@ def create_cfn_template(environment, region):
                     ),
                     CustomErrorResponses=[
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="403",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='403',
                         ),
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="404",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='404',
                         ),
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="500",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='500',
                         ),
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="501",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='501',
                         ),
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="502",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='502',
                         ),
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="503",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='503',
                         ),
                         cf.CustomErrorResponse(
-                            ErrorCachingMinTTL="0",
-                            ErrorCode="504",
+                            ErrorCachingMinTTL='0',
+                            ErrorCode='504',
                         ),
                     ],
                 ),
@@ -198,57 +200,57 @@ def create_cfn_template(environment, region):
 
         cdnARecord = t.add_resource(
             RecordSetType(
-                f"{app_group_ansi}{src_domain_ansi}Adns",
-                HostedZoneName=f"{dns_domain}.",
-                Comment=f"{cdn_domain} domain record",
-                Name=f"{cdn_domain}",
-                Type="A",
+                f'{app_group_ansi}{src_domain_ansi}Adns',
+                HostedZoneName=f'{dns_domain}.',
+                Comment=f'{cdn_domain} domain record',
+                Name=f'{cdn_domain}',
+                Type='A',
                 AliasTarget=AliasTarget(
                     HostedZoneId=cfront_zone_id,
-                    DNSName=GetAtt(cdnDistribution, "DomainName"),
+                    DNSName=GetAtt(cdnDistribution, 'DomainName'),
                 ),
             )
         )
 
         cdnAAAARecord = t.add_resource(
             RecordSetType(
-                f"{app_group_ansi}{src_domain_ansi}AAAAdns",
-                HostedZoneName=f"{dns_domain}.",
-                Comment=f"{cdn_domain} domain record",
-                Name=f"{cdn_domain}",
-                Type="AAAA",
+                f'{app_group_ansi}{src_domain_ansi}AAAAdns',
+                HostedZoneName=f'{dns_domain}.',
+                Comment=f'{cdn_domain} domain record',
+                Name=f'{cdn_domain}',
+                Type='AAAA',
                 AliasTarget=AliasTarget(
                     HostedZoneId=cfront_zone_id,
-                    DNSName=GetAtt(cdnDistribution, "DomainName"),
+                    DNSName=GetAtt(cdnDistribution, 'DomainName'),
                 ),
             )
         )
 
-        if domain_info["alt_sub"] != "":
+        if domain_info['alt_sub'] != '':
             cdnAlternativeARecord = t.add_resource(
                 RecordSetType(
-                    f"{app_group_ansi}{src_domain_ansi}AlternativeAdns",
-                    HostedZoneName=f"{dns_domain}.",
-                    Comment=f"{alternate_name} domain record",
-                    Name=f"{alternate_name}",
-                    Type="A",
+                    f'{app_group_ansi}{src_domain_ansi}AlternativeAdns',
+                    HostedZoneName=f'{dns_domain}.',
+                    Comment=f'{alternate_name} domain record',
+                    Name=f'{alternate_name}',
+                    Type='A',
                     AliasTarget=AliasTarget(
                         HostedZoneId=cfront_zone_id,
-                        DNSName=GetAtt(cdnDistribution, "DomainName"),
+                        DNSName=GetAtt(cdnDistribution, 'DomainName'),
                     ),
                 )
             )
 
             cdnAlternativeAAAARecord = t.add_resource(
                 RecordSetType(
-                    f"{app_group_ansi}{src_domain_ansi}AlternativeAAAAdns",
-                    HostedZoneName=f"{dns_domain}.",
-                    Comment=f"{alternate_name} domain record",
-                    Name=f"{alternate_name}",
-                    Type="AAAA",
+                    f'{app_group_ansi}{src_domain_ansi}AlternativeAAAAdns',
+                    HostedZoneName=f'{dns_domain}.',
+                    Comment=f'{alternate_name} domain record',
+                    Name=f'{alternate_name}',
+                    Type='AAAA',
                     AliasTarget=AliasTarget(
                         HostedZoneId=cfront_zone_id,
-                        DNSName=GetAtt(cdnDistribution, "DomainName"),
+                        DNSName=GetAtt(cdnDistribution, 'DomainName'),
                     ),
                 )
             )
@@ -257,9 +259,9 @@ def create_cfn_template(environment, region):
             t.add_output(
                 [
                     Output(
-                        f"CDNDomainOutput{src_domain_ansi}",
-                        Description="Domain for CDN",
-                        Value=GetAtt(cdnDistribution, "DomainName"),
+                        f'CDNDomainOutput{src_domain_ansi}',
+                        Description='Domain for CDN',
+                        Value=GetAtt(cdnDistribution, 'DomainName'),
                     )
                 ]
             )
@@ -267,19 +269,21 @@ def create_cfn_template(environment, region):
     #####################################################################################################################
     # API Gateway
     #####################################################################################################################
-    rest_api = t.add_resource(RestApi("api", Name=f"{environment}-{app_group_l}"))
+    rest_api = t.add_resource(
+        RestApi('api', Name=f'{environment}-{app_group_l}')
+    )
 
     #####################################################################################################################
     # DynamoDB table
     #####################################################################################################################
     myDynamoDB = t.add_resource(
         Table(
-            "myDynamoDBTable",
-            TableName="counters",
+            'myDynamoDBTable',
+            TableName='counters',
             AttributeDefinitions=[
-                AttributeDefinition(AttributeName="website", AttributeType="S")
+                AttributeDefinition(AttributeName='website', AttributeType='S')
             ],
-            KeySchema=[KeySchema(AttributeName="website", KeyType="HASH")],
+            KeySchema=[KeySchema(AttributeName='website', KeyType='HASH')],
             ProvisionedThroughput=ProvisionedThroughput(
                 ReadCapacityUnits=readunits, WriteCapacityUnits=writeunits
             ),
@@ -292,60 +296,60 @@ def create_cfn_template(environment, region):
     # Create a Lambda function that will be mapped
     code = [
         "var response = require('cfn-response');",
-        "exports.handler = function(event, context) {",
+        'exports.handler = function(event, context) {',
         "   context.succeed('foobar!');",
         "   return 'foobar!';",
-        "};",
+        '};',
     ]
 
     # Create a role for the lambda function
     t.add_resource(
         Role(
-            "LambdaExecutionRole",
-            Path="/",
+            'LambdaExecutionRole',
+            Path='/',
             Policies=[
                 Policy(
-                    PolicyName="root",
+                    PolicyName='root',
                     PolicyDocument={
-                        "Version": "2012-10-17",
-                        "Statement": [
+                        'Version': '2012-10-17',
+                        'Statement': [
                             {
-                                "Action": ["logs:*"],
-                                "Resource": "arn:aws:logs:*:*:*",
-                                "Effect": "Allow",
+                                'Action': ['logs:*'],
+                                'Resource': 'arn:aws:logs:*:*:*',
+                                'Effect': 'Allow',
                             },
                             {
-                                "Action": ["lambda:*"],
-                                "Resource": "*",
-                                "Effect": "Allow",
+                                'Action': ['lambda:*'],
+                                'Resource': '*',
+                                'Effect': 'Allow',
                             },
                             {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "dynamodb:BatchGetItem",
-                                    "dynamodb:GetItem",
-                                    "dynamodb:Query",
-                                    "dynamodb:Scan",
-                                    "dynamodb:BatchWriteItem",
-                                    "dynamodb:PutItem",
-                                    "dynamodb:UpdateItem",
+                                'Effect': 'Allow',
+                                'Action': [
+                                    'dynamodb:BatchGetItem',
+                                    'dynamodb:GetItem',
+                                    'dynamodb:Query',
+                                    'dynamodb:Scan',
+                                    'dynamodb:BatchWriteItem',
+                                    'dynamodb:PutItem',
+                                    'dynamodb:UpdateItem',
                                 ],
-                                "Resource": GetAtt("myDynamoDBTable", "Arn"),
+                                'Resource': GetAtt('myDynamoDBTable', 'Arn'),
                             },
                         ],
                     },
                 )
             ],
             AssumeRolePolicyDocument={
-                "Version": "2012-10-17",
-                "Statement": [
+                'Version': '2012-10-17',
+                'Statement': [
                     {
-                        "Action": ["sts:AssumeRole"],
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": [
-                                "lambda.amazonaws.com",
-                                "apigateway.amazonaws.com",
+                        'Action': ['sts:AssumeRole'],
+                        'Effect': 'Allow',
+                        'Principal': {
+                            'Service': [
+                                'lambda.amazonaws.com',
+                                'apigateway.amazonaws.com',
                             ]
                         },
                     }
@@ -356,74 +360,74 @@ def create_cfn_template(environment, region):
 
     function = t.add_resource(
         Function(
-            "function",
-            Code=Code(ZipFile=Join("", code)),
-            Handler="index.handler",
-            Role=GetAtt("LambdaExecutionRole", "Arn"),
-            Runtime="python3.7",
+            'function',
+            Code=Code(ZipFile=Join('', code)),
+            Handler='index.handler',
+            Role=GetAtt('LambdaExecutionRole', 'Arn'),
+            Runtime='python3.7',
         )
     )
 
     # Create a resource to map the lambda function to
     resource = t.add_resource(
         Resource(
-            "resource",
+            'resource',
             RestApiId=Ref(rest_api),
-            PathPart="dynamo",
-            ParentId=GetAtt("api", "RootResourceId"),
+            PathPart='dynamo',
+            ParentId=GetAtt('api', 'RootResourceId'),
         )
     )
 
     # Create a get method that integrates into Lambda
     getmethod = t.add_resource(
         Method(
-            "getmethod",
+            'getmethod',
             RestApiId=Ref(rest_api),
-            AuthorizationType="NONE",
+            AuthorizationType='NONE',
             ResourceId=Ref(resource),
-            HttpMethod="GET",
+            HttpMethod='GET',
             MethodResponses=[
                 MethodResponse(
-                    "CatResponse",
-                    StatusCode="200",
-                    ResponseModels={"application/json": "Empty"},
+                    'CatResponse',
+                    StatusCode='200',
+                    ResponseModels={'application/json': 'Empty'},
                 )
             ],
             Integration=Integration(
-                Credentials=GetAtt("LambdaExecutionRole", "Arn"),
-                PassthroughBehavior="WHEN_NO_MATCH",
-                Type="AWS",
-                IntegrationHttpMethod="POST",
+                Credentials=GetAtt('LambdaExecutionRole', 'Arn'),
+                PassthroughBehavior='WHEN_NO_MATCH',
+                Type='AWS',
+                IntegrationHttpMethod='POST',
                 IntegrationResponses=[
                     IntegrationResponse(
-                        StatusCode="200",
-                        ResponseTemplates={"application/json": ""},
+                        StatusCode='200',
+                        ResponseTemplates={'application/json': ''},
                     )
                 ],
                 Uri=Join(
-                    "",
+                    '',
                     [
-                        f"arn:aws:apigateway:{region}:lambda:path/2015-03-31/functions/",
-                        GetAtt("function", "Arn"),
-                        "/invocations",
+                        f'arn:aws:apigateway:{region}:lambda:path/2015-03-31/functions/',
+                        GetAtt('function', 'Arn'),
+                        '/invocations',
                     ],
                 ),
-                RequestTemplates={"application/json": '{"statusCode": 200}'},
+                RequestTemplates={'application/json': '{"statusCode": 200}'},
             ),
         )
     )
 
     deployment = t.add_resource(
         Deployment(
-            f"{stage_name}Deployment",
-            DependsOn="getmethod",
+            f'{stage_name}Deployment',
+            DependsOn='getmethod',
             RestApiId=Ref(rest_api),
         )
     )
 
     stage = t.add_resource(
         Stage(
-            f"{stage_name}Stage",
+            f'{stage_name}Stage',
             StageName=stage_name,
             RestApiId=Ref(rest_api),
             DeploymentId=Ref(deployment),
@@ -433,14 +437,16 @@ def create_cfn_template(environment, region):
     # Create cname record for all mount points
     apiCname = t.add_resource(
         RecordSetType(
-            "apiCname",
-            HostedZoneName=f"{dns_domain}.",
-            Comment=f"{app_group_l} API gateway domain record",
-            Name=f"api.{dns_domain}",
-            Type="CNAME",
-            TTL="900",
+            'apiCname',
+            HostedZoneName=f'{dns_domain}.',
+            Comment=f'{app_group_l} API gateway domain record',
+            Name=f'api.{dns_domain}',
+            Type='CNAME',
+            TTL='900',
             ResourceRecords=[
-                Join("", [Ref(rest_api), f".execute-api.{region}.amazonaws.com"])
+                Join(
+                    '', [Ref(rest_api), f'.execute-api.{region}.amazonaws.com']
+                )
             ],
         )
     )
@@ -453,26 +459,26 @@ def create_cfn_template(environment, region):
     t.add_output(
         [
             Output(
-                "ApiEndpoint",
+                'ApiEndpoint',
                 Value=Join(
-                    "",
+                    '',
                     [
-                        "https://",
+                        'https://',
                         Ref(rest_api),
-                        f".execute-api.{region}.amazonaws.com/",
+                        f'.execute-api.{region}.amazonaws.com/',
                         stage_name,
                     ],
                 ),
-                Description="Endpoint for this stage of the api",
+                Description='Endpoint for this stage of the api',
             ),
         ]
     )
     # DynamoDB outputs
     t.add_output(
         Output(
-            "TableName",
+            'TableName',
             Value=Ref(myDynamoDB),
-            Description="Table name of the newly create DynamoDB table",
+            Description='Table name of the newly create DynamoDB table',
         )
     )
 
