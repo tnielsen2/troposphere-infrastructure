@@ -2,10 +2,10 @@
 FROM python:3.11-slim
 
 # Set the working directory to /app
-WORKDIR /troposphere_infrastructure
+WORKDIR /troposphere-infrastructure
 
 # Copy the current directory contents into the container at /app
-COPY requirements.txt /troposphere_infrastructure
+COPY requirements.txt /troposphere-infrastructure
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
