@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Pytest
         run: |
-          python -m pytest tests/
+          pwd && pytest tests/
 
   black-fmt:
     name: Python Black Linting
