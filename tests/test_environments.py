@@ -1,6 +1,6 @@
 import ipaddress
 
-from src.common.vpc import vpc_settings
+from ..src.common.vpc import vpc_settings
 
 
 #####
