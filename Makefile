@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := help
 
 .PHONY: all
-all: docker black-lint cfn-templates cfn-lint
+all: docker lint cfn-templates
 
 .PHONY: fix
 fix:
