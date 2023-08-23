@@ -15,7 +15,9 @@ def get_network_dict():
     # Loop through all cidrs and convert from string type to ipaddress type
     for region in vpc_settings:
         for environment in vpc_settings[region]:
-            network_objects[f'{environment}.{region}'] = vpc_settings[region][environment]['cidr']
+            network_objects[f'{environment}.{region}'] = vpc_settings[region][
+                environment
+            ]['cidr']
     return network_objects
 
 

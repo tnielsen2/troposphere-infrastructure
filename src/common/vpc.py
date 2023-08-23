@@ -6,11 +6,11 @@ from troposphere import Select
 
 vpc_settings = {
     'us-west-2': {
-            'dev-a': {
-                'vpc_type': 'private',
-                'cidr': '10.0.0.0/21',
-                'subnet_count': 3,
-            },
+        'dev-a': {
+            'vpc_type': 'private',
+            'cidr': '10.0.0.0/21',
+            'subnet_count': 3,
+        },
     },
     'us-east-2': {
         'dev-a': {
